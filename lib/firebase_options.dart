@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:moneygone/env/env.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -49,16 +50,16 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAFolcVayXAiQFTWlyCZ1O3o7PJiGa1HxE',
+  static final FirebaseOptions android = FirebaseOptions(
+    apiKey: Env.apiKey,
     appId: '1:554452141483:android:acd48580b0b13c3df53eee',
     messagingSenderId: '554452141483',
     projectId: 'moneygone-5d892',
     storageBucket: 'moneygone-5d892.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCkmp2UyM2wAfBOS22TEAxtQQLezJrWlhU',
+  static final FirebaseOptions ios = FirebaseOptions(
+    apiKey: Env.apiKey,
     appId: '1:554452141483:ios:4f6913d389514d27f53eee',
     messagingSenderId: '554452141483',
     projectId: 'moneygone-5d892',
