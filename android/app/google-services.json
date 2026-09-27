@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "554452141483",
+    "project_id": "moneygone-5d892",
+    "storage_bucket": "moneygone-5d892.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:554452141483:android:acd48580b0b13c3df53eee",
+        "android_client_info": {
+          "package_name": "com.example.moneygone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFolcVayXAiQFTWlyCZ1O3o7PJiGa1HxE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
