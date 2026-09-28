@@ -411,11 +411,11 @@ class Dashboard extends StatelessWidget {
          currentIndex: 0, 
          onItemSelected: (index) {
            if (index == 1) { 
-            Get.toNamed(
+            Get.offNamed(
               AppRoutes.expenses
               ); 
             } else if (index == 2) { 
-              Get.toNamed(
+              Get.offNamed(
                 AppRoutes.profile
                 ); 
               } 

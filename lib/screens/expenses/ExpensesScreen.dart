@@ -4,7 +4,9 @@ import 'package:intl/intl.dart';
 
 import '../../controllers/expense_controller.dart';
 import '../../model/expense.dart';
+import '../../widgets/common/navigation.dart';
 import 'AddEditExpenseScreen.dart';
+import '../../app/routes/app_routes.dart';
 
 class ExpensesScreen extends StatelessWidget {
   ExpensesScreen({super.key});
@@ -17,6 +19,10 @@ class ExpensesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // ==================================================
+      // APP BAR
+      // ==================================================
+
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
@@ -24,29 +30,35 @@ class ExpensesScreen extends StatelessWidget {
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
-
         ),
-        // actions: [
-        //   IconButton(
-        //     onPressed: () {
-        //       Get.to(
-        //             () => const AddEditExpenseScreen(),
-        //       );
-        //     },
-        //     icon: const Icon(Icons.add),
-        //   ),
-        // ],
       ),
+
+      // ==================================================
+      // BODY
+      // ==================================================
 
       body: Obx(
             () {
           final expenses = controller.filteredExpenses;
 
+          // Loading
+          if (controller.isLoading.value) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          // Error
+          if (controller.errorMessage.value.isNotEmpty &&
+              expenses.isEmpty) {
+            return _buildErrorState();
+          }
+
           return Column(
             children: [
-              // ----------------------------------------
-              // Total
-              // ----------------------------------------
+              // ------------------------------------------
+              // TOTAL EXPENSES
+              // ------------------------------------------
 
               Container(
                 width: double.infinity,
@@ -85,9 +97,9 @@ class ExpensesScreen extends StatelessWidget {
                 ),
               ),
 
-              // ----------------------------------------
-              // Filters
-              // ----------------------------------------
+              // ------------------------------------------
+              // FILTERS
+              // ------------------------------------------
 
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -107,9 +119,9 @@ class ExpensesScreen extends StatelessWidget {
                 ),
               ),
 
-              // ----------------------------------------
-              // Expense history
-              // ----------------------------------------
+              // ------------------------------------------
+              // EXPENSE HISTORY
+              // ------------------------------------------
 
               Expanded(
                 child: expenses.isEmpty
@@ -132,6 +144,10 @@ class ExpensesScreen extends StatelessWidget {
         },
       ),
 
+      // ==================================================
+      // ADD EXPENSE BUTTON
+      // ==================================================
+
       floatingActionButton: FloatingActionButton(
         backgroundColor: green,
         onPressed: () {
@@ -144,14 +160,35 @@ class ExpensesScreen extends StatelessWidget {
           color: Colors.white,
         ),
       ),
+
+      // ==================================================
+      // BOTTOM NAVIGATION BAR
+      // ==================================================
+
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 1,
+        onItemSelected: (index) {
+          if (index == 0) {
+            Get.offNamed(
+              AppRoutes.dashBoard,
+            );
+          } else if (index == 2) {
+            Get.offNamed(
+              AppRoutes.profile,
+            );
+          }
+        },
+      ),
     );
   }
 
   // ==================================================
-  // Month filter
+  // MONTH FILTER
   // ==================================================
 
-  Widget _buildMonthFilter(BuildContext context) {
+  Widget _buildMonthFilter(
+      BuildContext context,
+      ) {
     return OutlinedButton.icon(
       onPressed: () async {
         final selected = await showDatePicker(
@@ -172,9 +209,7 @@ class ExpensesScreen extends StatelessWidget {
             () => Text(
           controller.selectedMonth.value == null
               ? 'Month'
-              : DateFormat(
-            'MMM yyyy',
-          ).format(
+              : DateFormat('MMM yyyy').format(
             controller.selectedMonth.value!,
           ),
         ),
@@ -183,14 +218,15 @@ class ExpensesScreen extends StatelessWidget {
   }
 
   // ==================================================
-  // Category filter
+  // CATEGORY FILTER
   // ==================================================
 
   Widget _buildCategoryFilter() {
     return Obx(
           () {
         return DropdownButtonFormField<ExpenseCategory?>(
-          initialValue: controller.selectedCategory.value,
+          initialValue:
+          controller.selectedCategory.value,
           decoration: const InputDecoration(
             labelText: 'Category',
             border: OutlineInputBorder(),
@@ -218,7 +254,7 @@ class ExpensesScreen extends StatelessWidget {
   }
 
   // ==================================================
-  // Expense card
+  // EXPENSE CARD
   // ==================================================
 
   Widget _buildExpenseCard(
@@ -243,6 +279,10 @@ class ExpensesScreen extends StatelessWidget {
           color: Colors.white,
         ),
       ),
+
+      // -----------------------------------------------
+      // CONFIRM DELETE
+      // -----------------------------------------------
 
       confirmDismiss: (_) async {
         return await Get.dialog<bool>(
@@ -274,19 +314,39 @@ class ExpensesScreen extends StatelessWidget {
         );
       },
 
-      onDismissed: (_) {
-        controller.deleteExpense(expense.id);
+      // -----------------------------------------------
+      // DELETE FROM FIRESTORE
+      // -----------------------------------------------
 
-        Get.snackbar(
-          'Expense deleted',
-          '${expense.title} was removed',
-          snackPosition: SnackPosition.BOTTOM,
+      onDismissed: (_) async {
+        final success =
+        await controller.deleteExpense(
+          expense.id,
         );
+
+        if (success) {
+          Get.snackbar(
+            'Expense Deleted',
+            '${expense.title} was removed.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        } else {
+          Get.snackbar(
+            'Error',
+            'Unable to delete expense.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
       },
+
+      // -----------------------------------------------
+      // EXPENSE CARD
+      // -----------------------------------------------
 
       child: Card(
         margin: const EdgeInsets.only(bottom: 12),
         child: ListTile(
+          // Tap expense -> Edit
           onTap: () {
             Get.to(
                   () => AddEditExpenseScreen(
@@ -299,7 +359,9 @@ class ExpensesScreen extends StatelessWidget {
             backgroundColor:
             green.withValues(alpha: 0.1),
             child: Icon(
-              _getCategoryIcon(expense.category),
+              _getCategoryIcon(
+                expense.category,
+              ),
               color: green,
             ),
           ),
@@ -330,36 +392,85 @@ class ExpensesScreen extends StatelessWidget {
   }
 
   // ==================================================
-  // Empty state
+  // EMPTY STATE
   // ==================================================
 
   Widget _buildEmptyState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.receipt_long_outlined,
-            size: 60,
-            color: Colors.grey.shade400,
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'No expenses found',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment:
+          MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.receipt_long_outlined,
+              size: 60,
+              color: Colors.grey.shade400,
             ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Try changing your filters or add a new expense.',
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 12),
+            const Text(
+              'No expenses found',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Try changing your filters or add a new expense.',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  // ==================================================
+  // ERROR STATE
+  // ==================================================
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment:
+          MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              size: 60,
+              color: Colors.redAccent,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Unable to load expenses',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Please check your internet connection and try again.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: controller.loadExpenses,
+              child: const Text('Try Again'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ==================================================
+  // CATEGORY ICON
+  // ==================================================
 
   IconData _getCategoryIcon(
       ExpenseCategory category,
@@ -367,18 +478,25 @@ class ExpensesScreen extends StatelessWidget {
     switch (category) {
       case ExpenseCategory.food:
         return Icons.restaurant;
+
       case ExpenseCategory.transport:
         return Icons.directions_bus;
+
       case ExpenseCategory.shopping:
         return Icons.shopping_bag;
+
       case ExpenseCategory.bills:
         return Icons.receipt;
+
       case ExpenseCategory.entertainment:
         return Icons.movie;
+
       case ExpenseCategory.health:
         return Icons.health_and_safety;
+
       case ExpenseCategory.education:
         return Icons.school;
+
       case ExpenseCategory.other:
         return Icons.more_horiz;
     }

@@ -1,186 +1,257 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '../model/expense.dart';
+import '../repositories/expense_repository.dart';
 
 class ExpenseController extends GetxController {
-  // --------------------------------------------------
-  // All expenses
-  // --------------------------------------------------
+  final ExpenseRepository _repository =
+  ExpenseRepository();
+
+  // ==================================================
+  // State
+  // ==================================================
 
   final RxList<Expense> expenses = <Expense>[].obs;
 
-  // --------------------------------------------------
-  // Filters
-  // --------------------------------------------------
+  final RxBool isLoading = false.obs;
 
-  final Rx<DateTime?> selectedMonth = Rx<DateTime?>(null);
+  final RxBool isSaving = false.obs;
+
+  final RxBool isDeleting = false.obs;
+
+  final RxString errorMessage = ''.obs;
+
+  StreamSubscription<List<Expense>>?
+  _expenseSubscription;
+
+  // ==================================================
+  // Filters
+  // ==================================================
+
+  final Rx<DateTime?> selectedMonth =
+  Rx<DateTime?>(null);
 
   final Rx<ExpenseCategory?> selectedCategory =
   Rx<ExpenseCategory?>(null);
 
-  // --------------------------------------------------
-  // Filtered expenses
-  // --------------------------------------------------
+  // ==================================================
+  // Lifecycle
+  // ==================================================
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    loadExpenses();
+  }
+
+  @override
+  void onClose() {
+    _expenseSubscription?.cancel();
+    super.onClose();
+  }
+
+  // ==================================================
+  // READ
+  // ==================================================
+
+  void loadExpenses() {
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    try {
+      _expenseSubscription =
+          _repository.getExpenses().listen(
+                (data) {
+              expenses.assignAll(data);
+              isLoading.value = false;
+            },
+            onError: (error) {
+              isLoading.value = false;
+              errorMessage.value =
+              'Unable to load expenses.';
+            },
+          );
+    } catch (e) {
+      isLoading.value = false;
+      errorMessage.value =
+      'Unable to load expenses.';
+    }
+  }
+
+  // ==================================================
+  // FILTERED EXPENSES
+  // ==================================================
 
   List<Expense> get filteredExpenses {
-    List<Expense> result = List.from(expenses);
+    List<Expense> result =
+    List<Expense>.from(expenses);
 
-    // Filter by month
+    // Month filter
     if (selectedMonth.value != null) {
       result = result.where((expense) {
-        return expense.date.year == selectedMonth.value!.year &&
-            expense.date.month == selectedMonth.value!.month;
+        return expense.date.year ==
+            selectedMonth.value!.year &&
+            expense.date.month ==
+                selectedMonth.value!.month;
       }).toList();
     }
 
-    // Filter by category
+    // Category filter
     if (selectedCategory.value != null) {
       result = result.where((expense) {
-        return expense.category == selectedCategory.value;
+        return expense.category ==
+            selectedCategory.value;
       }).toList();
     }
 
     // Newest first
-    result.sort((a, b) => b.date.compareTo(a.date));
+    result.sort(
+          (a, b) => b.date.compareTo(a.date),
+    );
 
     return result;
   }
 
-  // --------------------------------------------------
-  // Total filtered expenses
-  // --------------------------------------------------
+  // ==================================================
+  // TOTAL
+  // ==================================================
 
   double get filteredTotal {
     return filteredExpenses.fold(
-      0,
-          (total, expense) => total + expense.amount,
+      0.0,
+          (total, expense) =>
+      total + expense.amount,
     );
   }
 
-  // --------------------------------------------------
-  // Add expense
-  // --------------------------------------------------
+  // ==================================================
+  // ADD
+  // ==================================================
 
-  void addExpense({
+  Future<bool> addExpense({
     required String title,
     required double amount,
     required ExpenseCategory category,
     required DateTime date,
     String? description,
-  }) {
-    final expense = Expense(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: title,
-      amount: amount,
-      category: category,
-      date: date,
-      description: description,
-    );
+  }) async {
+    try {
+      isSaving.value = true;
 
-    expenses.add(expense);
+      final expense = Expense(
+        id: '',
+        userId: '',
+        title: title,
+        amount: amount,
+        category: category,
+        date: date,
+        description: description,
+      );
+
+      await _repository.addExpense(expense);
+
+      return true;
+    } catch (e) {
+      errorMessage.value =
+      'Unable to add expense.';
+      return false;
+    } finally {
+      isSaving.value = false;
+    }
   }
 
-  // --------------------------------------------------
-  // Update expense
-  // --------------------------------------------------
+  // ==================================================
+  // UPDATE
+  // ==================================================
 
-  void updateExpense({
+  Future<bool> updateExpense({
     required String id,
     required String title,
     required double amount,
     required ExpenseCategory category,
     required DateTime date,
     String? description,
-  }) {
-    final index = expenses.indexWhere(
-          (expense) => expense.id == id,
-    );
+  }) async {
+    try {
+      isSaving.value = true;
 
-    if (index == -1) return;
+      final existingExpense =
+      expenses.firstWhere(
+            (expense) => expense.id == id,
+      );
 
-    expenses[index] = expenses[index].copyWith(
-      title: title,
-      amount: amount,
-      category: category,
-      date: date,
-      description: description,
-    );
+      final updatedExpense =
+      existingExpense.copyWith(
+        title: title,
+        amount: amount,
+        category: category,
+        date: date,
+        description: description,
+      );
+
+      await _repository.updateExpense(
+        updatedExpense,
+      );
+
+      return true;
+    } catch (e) {
+      errorMessage.value =
+      'Unable to update expense.';
+      return false;
+    } finally {
+      isSaving.value = false;
+    }
   }
 
-  // --------------------------------------------------
-  // Delete expense
-  // --------------------------------------------------
+  // ==================================================
+  // DELETE
+  // ==================================================
 
-  void deleteExpense(String id) {
-    expenses.removeWhere(
-          (expense) => expense.id == id,
-    );
+  Future<bool> deleteExpense(
+      String id,
+      ) async {
+    try {
+      isDeleting.value = true;
+
+      await _repository.deleteExpense(id);
+
+      return true;
+    } catch (e) {
+      errorMessage.value =
+      'Unable to delete expense.';
+      return false;
+    } finally {
+      isDeleting.value = false;
+    }
   }
 
-  // --------------------------------------------------
-  // Month filter
-  // --------------------------------------------------
+  // ==================================================
+  // MONTH FILTER
+  // ==================================================
 
   void setMonth(DateTime? month) {
     selectedMonth.value = month;
   }
 
-  // --------------------------------------------------
-  // Category filter
-  // --------------------------------------------------
+  // ==================================================
+  // CATEGORY FILTER
+  // ==================================================
 
-  void setCategory(ExpenseCategory? category) {
+  void setCategory(
+      ExpenseCategory? category,
+      ) {
     selectedCategory.value = category;
   }
 
-  // --------------------------------------------------
-  // Clear filters
-  // --------------------------------------------------
+  // ==================================================
+  // CLEAR FILTERS
+  // ==================================================
 
   void clearFilters() {
     selectedMonth.value = null;
     selectedCategory.value = null;
-  }
-
-  // --------------------------------------------------
-  // Sample data
-  // --------------------------------------------------
-
-  @override
-  void onInit() {
-    super.onInit();
-
-    expenses.addAll([
-      Expense(
-        id: '1',
-        title: 'Lunch',
-        amount: 850,
-        category: ExpenseCategory.food,
-        date: DateTime(2026, 9, 28),
-        description: 'Lunch at restaurant',
-      ),
-      Expense(
-        id: '2',
-        title: 'Bus',
-        amount: 120,
-        category: ExpenseCategory.transport,
-        date: DateTime(2026, 9, 27),
-      ),
-      Expense(
-        id: '3',
-        title: 'Shopping',
-        amount: 4500,
-        category: ExpenseCategory.shopping,
-        date: DateTime(2026, 9, 25),
-      ),
-      Expense(
-        id: '4',
-        title: 'Electricity Bill',
-        amount: 3200,
-        category: ExpenseCategory.bills,
-        date: DateTime(2026, 9, 20),
-      ),
-    ]);
   }
 }

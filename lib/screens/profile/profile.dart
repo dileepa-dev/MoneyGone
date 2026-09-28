@@ -126,9 +126,9 @@ class Profile extends StatelessWidget {
         currentIndex: 2,
         onItemSelected: (index) {
           if (index == 0) {
-            Get.offAllNamed(AppRoutes.dashBoard);
+            Get.offNamed(AppRoutes.dashBoard);
           } else if (index == 1) {
-            Get.toNamed(AppRoutes.expenses);
+            Get.offNamed(AppRoutes.expenses);
           }
         },
       ),
