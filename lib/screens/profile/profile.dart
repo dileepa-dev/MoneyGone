@@ -4,7 +4,6 @@ import 'package:moneygone/widgets/common/navigation.dart';
 
 import '../../app/routes/app_routes.dart';
 import '../../controllers/profile_controller.dart';
-// import your AppRoutes file here if it isn't already imported
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -16,10 +15,14 @@ class Profile extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F9),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Profile',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontWeight: FontWeight.bold
+          ),
         ),
+        centerTitle: true,
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         elevation: 0,
@@ -36,24 +39,18 @@ class Profile extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
 
-              // =========================
-              // PROFILE ICON
-              // =========================
               const CircleAvatar(
                 radius: 50,
-                backgroundColor: Color(0xFFEDE9FE),
+                backgroundColor: Color(0xFFCEFFD0),
                 child: Icon(
                   Icons.person,
                   size: 55,
-                  color: Color(0xFF8162FF),
+                  color: Color(0xFF62FF6A),
                 ),
               ),
 
               const SizedBox(height: 20),
 
-              // =========================
-              // USER NAME
-              // =========================
               Text(
                 controller.name.value,
                 textAlign: TextAlign.center,
@@ -63,22 +60,8 @@ class Profile extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 6),
+              const SizedBox(height: 45),
 
-              // =========================
-              // EMAIL
-              // =========================
-              Text(
-                controller.email.value,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-
-              const SizedBox(height: 35),
-
-              // =========================
-              // ACCOUNT INFORMATION
-              // =========================
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -103,16 +86,27 @@ class Profile extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 45),
 
-              // =========================
-              // LOGOUT BUTTON
-              // =========================
               SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton.icon(
-                  onPressed: controller.logout,
+                  onPressed: () {
+                    Get.defaultDialog(
+                      title: 'Logout',
+                      middleText: 'Are you sure you want to logout?',
+                      textCancel: 'Cancel',
+                      textConfirm: 'Logout',
+                      confirmTextColor: Colors.white,
+                      buttonColor: Colors.red,
+                      cancelTextColor: Colors.black87,
+                      onConfirm: () {
+                        Get.back(); // close the dialog
+                        controller.logout();
+                      },
+                    );
+                  },
                   icon: const Icon(Icons.logout),
                   label: const Text('Logout'),
                   style: ElevatedButton.styleFrom(
@@ -136,16 +130,11 @@ class Profile extends StatelessWidget {
           } else if (index == 1) {
             Get.toNamed(AppRoutes.expenses);
           }
-          // index 2 is this screen, so nothing to do
         },
       ),
     );
   }
 }
-
-// ======================================================
-// PROFILE ITEM
-// ======================================================
 
 class _ProfileItem extends StatelessWidget {
   final IconData icon;
@@ -165,10 +154,10 @@ class _ProfileItem extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFFEDE9FE),
+            color: const Color(0xFFCEFFD0),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: const Color(0xFF8162FF)),
+          child: Icon(icon, color: const Color(0xFF62FF6A)),
         ),
 
         const SizedBox(width: 15),

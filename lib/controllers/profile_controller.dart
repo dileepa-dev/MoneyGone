@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../app/routes/app_routes.dart';
 
 class ProfileController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -64,11 +67,23 @@ class ProfileController extends GetxController {
     }
   }
 
-// Logout
-Future<void> logout() async {
+  // Logout
+  Future<void> logout() async {
+    // Show loader
+    Get.dialog(
+      const PopScope(
+        canPop: false,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      barrierDismissible: false,
+    );
+
     try {
       await _auth.signOut();
+      Get.offAllNamed(AppRoutes.login);
     } catch (e) {
+      if (Get.isDialogOpen ?? false) Get.back();
+
       Get.snackbar(
         'Error',
         'Unable to logout. Please try again.',

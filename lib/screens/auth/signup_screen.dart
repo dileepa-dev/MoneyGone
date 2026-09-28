@@ -26,7 +26,7 @@ class SignupScreen extends StatelessWidget {
             final isTablet = constraints.maxWidth >= 600;
 
             return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isTablet ? 80 : 28,
