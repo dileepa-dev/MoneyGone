@@ -15,7 +15,6 @@ Future<void> main() async {
     if (e.code != 'duplicate-app') {
       rethrow;
     }
-    // Already initialized natively (e.g. via google-services.json auto-init) — safe to ignore.
   }
 
   runApp(const MyApp());

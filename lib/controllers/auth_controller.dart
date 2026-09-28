@@ -85,7 +85,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // signup
+  // Signup
   Future<void> signup() async {
     final name = signupNameController.text.trim();
     final email = signupEmailController.text.trim();
@@ -150,9 +150,8 @@ class AuthController extends GetxController {
         _showError('Unable to create your account.');
         return;
       }
-      // Save name to Firebase Auth
+      // Save the name and the required data to the firebase
       await user.updateDisplayName(name);
-      // Save user data to Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -210,7 +209,7 @@ class AuthController extends GetxController {
         margin: const EdgeInsets.all(16),
       );
 
-      // Get.offNamed(AppRoutes.login);
+      Get.offNamed(AppRoutes.login);
     } on FirebaseAuthException catch (e) {
       _showFirebaseError(e);
     } catch (e) {

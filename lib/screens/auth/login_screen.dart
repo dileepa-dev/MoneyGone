@@ -42,6 +42,7 @@ class LoginScreen extends StatelessWidget {
                         height: isTablet ? 30 : 10,
                       ),
 
+                      // Image
                       SizedBox(
                         height: isTablet ? 300 : 220,
                         width: double.infinity,
@@ -55,6 +56,7 @@ class LoginScreen extends StatelessWidget {
                         height: isTablet ? 20 : 10,
                       ),
 
+                      // welcome
                       RichText(
                         textAlign: TextAlign.center,
                         text: const TextSpan(
@@ -81,6 +83,7 @@ class LoginScreen extends StatelessWidget {
 
                       const SizedBox(height: 6),
 
+                      // Form section
                       const Text(
                         'Fill your details or continue with\nsocial media.',
                         textAlign: TextAlign.center,
@@ -132,6 +135,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
 
+                      // Forgot password
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
@@ -157,6 +161,7 @@ class LoginScreen extends StatelessWidget {
 
                       const SizedBox(height: 4),
 
+                      // Sign in button
                       Obx(
                             () => AuthButton(
                           text: 'Sign In',
@@ -168,6 +173,7 @@ class LoginScreen extends StatelessWidget {
 
                       const SizedBox(height: 40),
 
+                      // Create account navigation
                       Row(
                         mainAxisAlignment:
                         MainAxisAlignment.center,

@@ -1,49 +1,25 @@
 import 'dart:async';
-
 import 'package:get/get.dart';
 
 import '../model/expense.dart';
 import '../repositories/expense_repository.dart';
 
 class ExpenseController extends GetxController {
-  final ExpenseRepository _repository =
-  ExpenseRepository();
-
-  // ==================================================
-  // State
-  // ==================================================
-
+  final ExpenseRepository _repository = ExpenseRepository();
   final RxList<Expense> expenses = <Expense>[].obs;
-
   final RxBool isLoading = false.obs;
-
   final RxBool isSaving = false.obs;
-
   final RxBool isDeleting = false.obs;
-
   final RxString errorMessage = ''.obs;
+  StreamSubscription<List<Expense>>? _expenseSubscription;
 
-  StreamSubscription<List<Expense>>?
-  _expenseSubscription;
-
-  // ==================================================
   // Filters
-  // ==================================================
-
-  final Rx<DateTime?> selectedMonth =
-  Rx<DateTime?>(null);
-
-  final Rx<ExpenseCategory?> selectedCategory =
-  Rx<ExpenseCategory?>(null);
-
-  // ==================================================
-  // Lifecycle
-  // ==================================================
+  final Rx<DateTime?> selectedMonth = Rx<DateTime?>(null);
+  final Rx<ExpenseCategory?> selectedCategory = Rx<ExpenseCategory?>(null);
 
   @override
   void onInit() {
     super.onInit();
-
     loadExpenses();
   }
 
@@ -53,10 +29,7 @@ class ExpenseController extends GetxController {
     super.onClose();
   }
 
-  // ==================================================
-  // READ
-  // ==================================================
-
+  // load all the expenses
   void loadExpenses() {
     isLoading.value = true;
     errorMessage.value = '';
@@ -81,10 +54,7 @@ class ExpenseController extends GetxController {
     }
   }
 
-  // ==================================================
   // FILTERED EXPENSES
-  // ==================================================
-
   List<Expense> get filteredExpenses {
     List<Expense> result =
     List<Expense>.from(expenses);
@@ -116,10 +86,7 @@ class ExpenseController extends GetxController {
     return result;
   }
 
-  // ==================================================
-  // TOTAL
-  // ==================================================
-
+  // Total calculate according to the filter
   double get filteredTotal {
     return filteredExpenses.fold(
       0.0,
@@ -128,10 +95,7 @@ class ExpenseController extends GetxController {
     );
   }
 
-  // ==================================================
-  // ADD
-  // ==================================================
-
+  // Add expense
   Future<bool> addExpense({
     required String title,
     required double amount,
@@ -164,10 +128,7 @@ class ExpenseController extends GetxController {
     }
   }
 
-  // ==================================================
-  // UPDATE
-  // ==================================================
-
+  // Update expense
   Future<bool> updateExpense({
     required String id,
     required String title,
@@ -207,18 +168,13 @@ class ExpenseController extends GetxController {
     }
   }
 
-  // ==================================================
-  // DELETE
-  // ==================================================
-
+  // Delete expense
   Future<bool> deleteExpense(
       String id,
       ) async {
     try {
       isDeleting.value = true;
-
       await _repository.deleteExpense(id);
-
       return true;
     } catch (e) {
       errorMessage.value =
@@ -229,28 +185,19 @@ class ExpenseController extends GetxController {
     }
   }
 
-  // ==================================================
-  // MONTH FILTER
-  // ==================================================
-
+  // Month filter
   void setMonth(DateTime? month) {
     selectedMonth.value = month;
   }
 
-  // ==================================================
-  // CATEGORY FILTER
-  // ==================================================
-
+  // Category filter
   void setCategory(
       ExpenseCategory? category,
       ) {
     selectedCategory.value = category;
   }
 
-  // ==================================================
-  // CLEAR FILTERS
-  // ==================================================
-
+  // Clear filters
   void clearFilters() {
     selectedMonth.value = null;
     selectedCategory.value = null;
@@ -258,7 +205,6 @@ class ExpenseController extends GetxController {
 
   Future<void> refreshExpenses() async {
     await _expenseSubscription?.cancel();
-
     loadExpenses();
 
     await Future.delayed(

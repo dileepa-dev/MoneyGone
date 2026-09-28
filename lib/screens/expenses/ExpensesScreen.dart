@@ -19,10 +19,6 @@ class ExpensesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ==================================================
-      // APP BAR
-      // ==================================================
-
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
@@ -33,10 +29,6 @@ class ExpensesScreen extends StatelessWidget {
           ),
         ),
       ),
-
-      // ==================================================
-      // BODY
-      // ==================================================
 
       body: Obx(
             () {
@@ -49,7 +41,6 @@ class ExpensesScreen extends StatelessWidget {
             );
           }
 
-          // Error
           if (controller.errorMessage.value.isNotEmpty &&
               expenses.isEmpty) {
             return _buildErrorState();
@@ -57,10 +48,7 @@ class ExpensesScreen extends StatelessWidget {
 
           return Column(
             children: [
-              // ------------------------------------------
-              // TOTAL EXPENSES
-              // ------------------------------------------
-
+              // Total expenses
               Container(
                 width: double.infinity,
                 margin: const EdgeInsets.fromLTRB(
@@ -98,10 +86,7 @@ class ExpensesScreen extends StatelessWidget {
                 ),
               ),
 
-              // ------------------------------------------
-              // FILTERS
-              // ------------------------------------------
-
+              // Filters
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -169,10 +154,7 @@ class ExpensesScreen extends StatelessWidget {
                 ),
               ),
 
-              // ------------------------------------------
-              // EXPENSE HISTORY
-              // ------------------------------------------
-
+              // Expense history
               Expanded(
                 child: expenses.isEmpty
                     ? _buildEmptyState()
@@ -198,10 +180,7 @@ class ExpensesScreen extends StatelessWidget {
         },
       ),
 
-      // ==================================================
-      // ADD EXPENSE BUTTON
-      // ==================================================
-
+      // Add Expense
       floatingActionButton: FloatingActionButton(
         backgroundColor: green,
         onPressed: () {
@@ -214,10 +193,6 @@ class ExpensesScreen extends StatelessWidget {
           color: Colors.white,
         ),
       ),
-
-      // ==================================================
-      // BOTTOM NAVIGATION BAR
-      // ==================================================
 
       bottomNavigationBar: BottomNavBar(
         currentIndex: 1,
@@ -236,10 +211,8 @@ class ExpensesScreen extends StatelessWidget {
     );
   }
 
-  // ==================================================
-  // MONTH FILTER
-  // ==================================================
 
+  // Month filter
   Widget _buildMonthFilter(
       BuildContext context,
       ) {
@@ -271,10 +244,7 @@ class ExpensesScreen extends StatelessWidget {
     );
   }
 
-  // ==================================================
-  // CATEGORY FILTER
-  // ==================================================
-
+  // Category filter
   Widget _buildCategoryFilter() {
     return Obx(
           () {
@@ -311,10 +281,8 @@ class ExpensesScreen extends StatelessWidget {
     );
   }
 
-  // ==================================================
-  // EXPENSE CARD
-  // ==================================================
 
+  // Expense card
   Widget _buildExpenseCard(
       BuildContext context,
       Expense expense,
@@ -338,10 +306,7 @@ class ExpensesScreen extends StatelessWidget {
         ),
       ),
 
-      // -----------------------------------------------
-      // CONFIRM DELETE
-      // -----------------------------------------------
-
+      // Delete confirmation
       confirmDismiss: (_) async {
         return await Get.dialog<bool>(
           AlertDialog(
@@ -372,10 +337,7 @@ class ExpensesScreen extends StatelessWidget {
         );
       },
 
-      // -----------------------------------------------
-      // DELETE FROM FIRESTORE
-      // -----------------------------------------------
-
+      // Delete
       onDismissed: (_) async {
         final success =
         await controller.deleteExpense(
@@ -401,10 +363,7 @@ class ExpensesScreen extends StatelessWidget {
         }
       },
 
-      // -----------------------------------------------
-      // EXPENSE CARD
-      // -----------------------------------------------
-
+      // Expense card
       child: Card(
         margin: const EdgeInsets.only(bottom: 12),
         child: ListTile(
@@ -453,10 +412,7 @@ class ExpensesScreen extends StatelessWidget {
     );
   }
 
-  // ==================================================
-  // EMPTY STATE
-  // ==================================================
-
+  // Empty state
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -489,10 +445,7 @@ class ExpensesScreen extends StatelessWidget {
     );
   }
 
-  // ==================================================
-  // ERROR STATE
-  // ==================================================
-
+  // Error State
   Widget _buildErrorState() {
     return Center(
       child: Padding(
@@ -530,10 +483,8 @@ class ExpensesScreen extends StatelessWidget {
     );
   }
 
-  // ==================================================
-  // CATEGORY ICON
-  // ==================================================
 
+  // Category icons
   IconData _getCategoryIcon(
       ExpenseCategory category,
       ) {

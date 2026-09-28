@@ -4,9 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../model/expense.dart';
 
 class ExpenseRepository {
-  final FirebaseFirestore _firestore =
-      FirebaseFirestore.instance;
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   CollectionReference<Map<String, dynamic>>
@@ -23,10 +21,7 @@ class ExpenseRepository {
     return user.uid;
   }
 
-  // ==================================================
   // CREATE
-  // ==================================================
-
   Future<void> addExpense(Expense expense) async {
     final userId = _currentUserId;
 
@@ -36,10 +31,7 @@ class ExpenseRepository {
     });
   }
 
-  // ==================================================
   // READ
-  // ==================================================
-
   Stream<List<Expense>> getExpenses() {
     final userId = _currentUserId;
 
@@ -62,10 +54,7 @@ class ExpenseRepository {
     });
   }
 
-  // ==================================================
   // UPDATE
-  // ==================================================
-
   Future<void> updateExpense(
       Expense expense,
       ) async {
@@ -84,10 +73,7 @@ class ExpenseRepository {
     });
   }
 
-  // ==================================================
   // DELETE
-  // ==================================================
-
   Future<void> deleteExpense(
       String expenseId,
       ) async {

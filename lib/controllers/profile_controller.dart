@@ -22,7 +22,7 @@ class ProfileController extends GetxController {
     loadUserProfile();
   }
 
-  // Load current logged-in user's information
+  // Load current logged user's information
   Future<void> loadUserProfile() async {
     try {
       isLoading.value = true;
@@ -52,7 +52,6 @@ class ProfileController extends GetxController {
         // Use Firestore email if available
         email.value = data['email'] ?? user.email ?? '';
       } else {
-        // Fallback to Firebase Auth
         name.value =
         user.displayName ?? 'User';
       }
@@ -71,7 +70,6 @@ class ProfileController extends GetxController {
 
   // Logout
   Future<void> logout() async {
-    // Show loader
     Get.dialog(
       const PopScope(
         canPop: false,

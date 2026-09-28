@@ -13,8 +13,7 @@ class AddEditExpenseScreen extends StatefulWidget {
   });
 
   @override
-  State<AddEditExpenseScreen> createState() =>
-      _AddEditExpenseScreenState();
+  State<AddEditExpenseScreen> createState() => _AddEditExpenseScreenState();
 }
 
 class _AddEditExpenseScreenState
@@ -25,11 +24,9 @@ class _AddEditExpenseScreenState
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  final ExpenseController expenseController =
-  Get.find<ExpenseController>();
+  final ExpenseController expenseController = Get.find<ExpenseController>();
 
-  ExpenseCategory _selectedCategory =
-      ExpenseCategory.food;
+  ExpenseCategory _selectedCategory = ExpenseCategory.food;
 
   DateTime _selectedDate = DateTime.now();
 
@@ -80,10 +77,7 @@ class _AddEditExpenseScreenState
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            // ------------------------------------------
             // Title
-            // ------------------------------------------
-
             TextFormField(
               controller: _titleController,
               textInputAction: TextInputAction.next,
@@ -95,19 +89,15 @@ class _AddEditExpenseScreenState
               validator: (value) {
                 if (value == null ||
                     value.trim().isEmpty) {
-                  return 'Please enter a title';
+                  return 'Please enter a title *';
                 }
-
                 return null;
               },
             ),
 
             const SizedBox(height: 16),
 
-            // ------------------------------------------
             // Amount
-            // ------------------------------------------
-
             TextFormField(
               controller: _amountController,
               keyboardType:
@@ -124,7 +114,7 @@ class _AddEditExpenseScreenState
               validator: (value) {
                 if (value == null ||
                     value.trim().isEmpty) {
-                  return 'Please enter an amount';
+                  return 'Please enter an amount *';
                 }
 
                 final amount =
@@ -134,17 +124,13 @@ class _AddEditExpenseScreenState
                     amount <= 0) {
                   return 'Enter a valid amount';
                 }
-
                 return null;
               },
             ),
 
             const SizedBox(height: 16),
 
-            // ------------------------------------------
             // Category
-            // ------------------------------------------
-
             DropdownButtonFormField<ExpenseCategory>(
               initialValue: _selectedCategory,
               decoration: const InputDecoration(
@@ -175,10 +161,7 @@ class _AddEditExpenseScreenState
 
             const SizedBox(height: 16),
 
-            // ------------------------------------------
             // Date
-            // ------------------------------------------
-
             InkWell(
               onTap: _selectDate,
               borderRadius:
@@ -186,7 +169,7 @@ class _AddEditExpenseScreenState
               child: InputDecorator(
                 decoration:
                 const InputDecoration(
-                  labelText: 'Date',
+                  labelText: 'Date *',
                   prefixIcon:
                   Icon(Icons.calendar_today),
                 ),
@@ -200,10 +183,7 @@ class _AddEditExpenseScreenState
 
             const SizedBox(height: 16),
 
-            // ------------------------------------------
             // Description
-            // ------------------------------------------
-
             TextFormField(
               controller:
               _descriptionController,
@@ -219,10 +199,7 @@ class _AddEditExpenseScreenState
 
             const SizedBox(height: 30),
 
-            // ------------------------------------------
             // Save button
-            // ------------------------------------------
-
             SizedBox(
               height: 52,
               child: ElevatedButton(
@@ -261,12 +238,8 @@ class _AddEditExpenseScreenState
     }
 
     final title = _titleController.text.trim();
-
-    final amount =
-    double.parse(_amountController.text.trim());
-
-    final description =
-    _descriptionController.text.trim();
+    final amount = double.parse(_amountController.text.trim());
+    final description = _descriptionController.text.trim();
 
     if (isEditing) {
       expenseController.updateExpense(
