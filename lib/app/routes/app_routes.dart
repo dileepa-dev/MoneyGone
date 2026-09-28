@@ -5,4 +5,5 @@ abstract class AppRoutes {
   static const String dashBoard = '/dashboard';
   static const String expenses = '/expenses';
   static const String profile = '/profile';
+  static const authCheck = '/auth-check';
 }

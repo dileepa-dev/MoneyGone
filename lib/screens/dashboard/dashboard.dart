@@ -419,8 +419,8 @@ class Dashboard extends StatelessWidget {
                 AppRoutes.profile
                 ); 
               } 
-              }, 
-              ),
+           },
+      ),
     );
   }
 }
