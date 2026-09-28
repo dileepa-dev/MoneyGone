@@ -6,7 +6,7 @@
 	<integer>12</integer>
 	<key>logs</key>
 	<dict>
-		<key>5900C6C3-37E7-45C3-9C63-74699BAFA29A</key>
+		<key>8D982E41-2D5E-4D36-B8A9-8A64FB7B595A</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -15,7 +15,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>5900C6C3-37E7-45C3-9C63-74699BAFA29A.xcactivitylog</string>
+			<string>8D982E41-2D5E-4D36-B8A9-8A64FB7B595A.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -40,15 +40,15 @@
 			<key>signature</key>
 			<string>Cleaning workspace Runner with scheme Runner</string>
 			<key>timeStartedRecording</key>
-			<real>812234027.81254804</real>
+			<real>812202530.711941</real>
 			<key>timeStoppedRecording</key>
-			<real>812234028.31086099</real>
+			<real>812202531.09224701</real>
 			<key>title</key>
 			<string>Cleaning workspace Runner with scheme Runner</string>
 			<key>uniqueIdentifier</key>
-			<string>5900C6C3-37E7-45C3-9C63-74699BAFA29A</string>
+			<string>8D982E41-2D5E-4D36-B8A9-8A64FB7B595A</string>
 		</dict>
-		<key>85D69883-6A42-4D48-8F6F-6DCFB6893ACC</key>
+		<key>E62385BF-E36B-4C75-B375-1C6F2BCF9BB5</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -57,7 +57,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>85D69883-6A42-4D48-8F6F-6DCFB6893ACC.xcactivitylog</string>
+			<string>E62385BF-E36B-4C75-B375-1C6F2BCF9BB5.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -82,13 +82,13 @@
 			<key>signature</key>
 			<string>Cleaning workspace Runner with scheme Flutter Assemble</string>
 			<key>timeStartedRecording</key>
-			<real>812233743.90882695</real>
+			<real>812231456.72194195</real>
 			<key>timeStoppedRecording</key>
-			<real>812233744.15857005</real>
+			<real>812231456.94691598</real>
 			<key>title</key>
 			<string>Cleaning workspace Runner with scheme Flutter Assemble</string>
 			<key>uniqueIdentifier</key>
-			<string>85D69883-6A42-4D48-8F6F-6DCFB6893ACC</string>
+			<string>E62385BF-E36B-4C75-B375-1C6F2BCF9BB5</string>
 		</dict>
 	</dict>
 </dict>
