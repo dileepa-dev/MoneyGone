@@ -69,7 +69,7 @@ class AuthController extends GetxController {
       Get.snackbar(
         'Success',
         'You have successfully signed in.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.green,
         colorText: Colors.white,
         margin: const EdgeInsets.all(16),
@@ -165,7 +165,7 @@ class AuthController extends GetxController {
       Get.snackbar(
         'Account Created',
         'Your account has been created successfully.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.green,
         colorText: Colors.white,
         margin: const EdgeInsets.all(16),
@@ -204,7 +204,7 @@ class AuthController extends GetxController {
       Get.snackbar(
         'Email Sent',
         'Please check your email for the password reset link.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.green,
         colorText: Colors.white,
         margin: const EdgeInsets.all(16),
@@ -288,7 +288,7 @@ class AuthController extends GetxController {
     Get.snackbar(
       'Error',
       message,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.redAccent,
       colorText: Colors.white,
       margin: const EdgeInsets.all(16),

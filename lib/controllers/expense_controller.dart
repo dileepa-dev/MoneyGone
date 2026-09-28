@@ -89,13 +89,14 @@ class ExpenseController extends GetxController {
     List<Expense> result =
     List<Expense>.from(expenses);
 
-    // Month filter
+    // Date filter
     if (selectedMonth.value != null) {
+      final selectedDate = selectedMonth.value!;
+
       result = result.where((expense) {
-        return expense.date.year ==
-            selectedMonth.value!.year &&
-            expense.date.month ==
-                selectedMonth.value!.month;
+        return expense.date.year == selectedDate.year &&
+            expense.date.month == selectedDate.month &&
+            expense.date.day == selectedDate.day;
       }).toList();
     }
 
@@ -253,5 +254,15 @@ class ExpenseController extends GetxController {
   void clearFilters() {
     selectedMonth.value = null;
     selectedCategory.value = null;
+  }
+
+  Future<void> refreshExpenses() async {
+    await _expenseSubscription?.cancel();
+
+    loadExpenses();
+
+    await Future.delayed(
+      const Duration(milliseconds: 500),
+    );
   }
 }

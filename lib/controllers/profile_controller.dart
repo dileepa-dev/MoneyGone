@@ -60,7 +60,9 @@ class ProfileController extends GetxController {
       Get.snackbar(
         'Error',
         'Unable to load profile information.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
       );
     } finally {
       isLoading.value = false;
@@ -87,7 +89,9 @@ class ProfileController extends GetxController {
       Get.snackbar(
         'Error',
         'Unable to logout. Please try again.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
       );
     }
   }

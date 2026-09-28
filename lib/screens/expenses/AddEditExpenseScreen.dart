@@ -66,6 +66,7 @@ class _AddEditExpenseScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           isEditing
               ? 'Edit Expense'
@@ -283,7 +284,9 @@ class _AddEditExpenseScreenState
       Get.snackbar(
         'Expense updated',
         'Your expense was updated successfully.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
     } else {
       expenseController.addExpense(
@@ -300,7 +303,9 @@ class _AddEditExpenseScreenState
       Get.snackbar(
         'Expense added',
         'Your expense was added successfully.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
     }
   }

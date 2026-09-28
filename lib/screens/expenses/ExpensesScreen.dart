@@ -25,6 +25,7 @@ class ExpensesScreen extends StatelessWidget {
 
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        centerTitle: true,
         title: const Text(
           'Expenses',
           style: TextStyle(
@@ -106,14 +107,63 @@ class ExpensesScreen extends StatelessWidget {
                   horizontal: 16,
                   vertical: 8,
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: _buildMonthFilter(context),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildMonthFilter(context),
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        Expanded(
+                          child: _buildCategoryFilter(),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        SizedBox(
+                          height: 48,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              controller.clearFilters();
+                            },
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.clear,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _buildCategoryFilter(),
+
+                    const SizedBox(height: 8),
+
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: Colors.red,
+                          size: 16,
+                        ),
+                        SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Swipe left to delete • Tap an expense to edit',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -126,17 +176,21 @@ class ExpensesScreen extends StatelessWidget {
               Expanded(
                 child: expenses.isEmpty
                     ? _buildEmptyState()
-                    : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: expenses.length,
-                  itemBuilder: (context, index) {
-                    final expense = expenses[index];
+                    : RefreshIndicator(
+                  onRefresh: controller.refreshExpenses,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: expenses.length,
+                    itemBuilder: (context, index) {
+                      final expense = expenses[index];
 
-                    return _buildExpenseCard(
-                      context,
-                      expense,
-                    );
-                  },
+                      return _buildExpenseCard(
+                        context,
+                        expense,
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -209,7 +263,7 @@ class ExpensesScreen extends StatelessWidget {
             () => Text(
           controller.selectedMonth.value == null
               ? 'Month'
-              : DateFormat('MMM yyyy').format(
+              : DateFormat('dd MMM yyyy').format(
             controller.selectedMonth.value!,
           ),
         ),
@@ -224,30 +278,34 @@ class ExpensesScreen extends StatelessWidget {
   Widget _buildCategoryFilter() {
     return Obx(
           () {
-        return DropdownButtonFormField<ExpenseCategory?>(
-          initialValue:
-          controller.selectedCategory.value,
-          decoration: const InputDecoration(
-            labelText: 'Category',
-            border: OutlineInputBorder(),
-          ),
-          items: [
-            const DropdownMenuItem<ExpenseCategory?>(
-              value: null,
-              child: Text('All'),
-            ),
-            ...ExpenseCategory.values.map(
-                  (category) {
-                return DropdownMenuItem(
-                  value: category,
-                  child: Text(
-                    category.displayName,
-                  ),
-                );
-              },
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DropdownButtonFormField<ExpenseCategory?>(
+              initialValue: controller.selectedCategory.value,
+              decoration: const InputDecoration(
+                labelText: 'Category',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                const DropdownMenuItem<ExpenseCategory?>(
+                  value: null,
+                  child: Text('All'),
+                ),
+                ...ExpenseCategory.values.map(
+                      (category) {
+                    return DropdownMenuItem<ExpenseCategory?>(
+                      value: category,
+                      child: Text(
+                        category.displayName,
+                      ),
+                    );
+                  },
+                ),
+              ],
+              onChanged: controller.setCategory,
             ),
           ],
-          onChanged: controller.setCategory,
         );
       },
     );
@@ -328,13 +386,17 @@ class ExpensesScreen extends StatelessWidget {
           Get.snackbar(
             'Expense Deleted',
             '${expense.title} was removed.',
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
           );
         } else {
           Get.snackbar(
             'Error',
             'Unable to delete expense.',
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
           );
         }
       },
