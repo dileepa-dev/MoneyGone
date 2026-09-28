@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -145,6 +146,22 @@ class AuthController extends GetxController {
 
       await credential.user?.updateDisplayName(name);
 
+      final user = credential.user; if (user == null) {
+        _showError('Unable to create your account.');
+        return;
+      }
+      // Save name to Firebase Auth
+      await user.updateDisplayName(name);
+      // Save user data to Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set({
+        'name': name,
+        'email': email,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
       Get.snackbar(
         'Account Created',
         'Your account has been created successfully.',
@@ -193,7 +210,7 @@ class AuthController extends GetxController {
         margin: const EdgeInsets.all(16),
       );
 
-      Get.offNamed(AppRoutes.login);
+      // Get.offNamed(AppRoutes.login);
     } on FirebaseAuthException catch (e) {
       _showFirebaseError(e);
     } catch (e) {

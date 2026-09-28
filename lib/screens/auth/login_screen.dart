@@ -14,8 +14,6 @@ class LoginScreen extends StatelessWidget {
     final AuthController controller =
     Get.put(AuthController());
 
-    // final size = MediaQuery.of(context).size;
-
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,

@@ -55,19 +55,19 @@ class Dashboard extends StatelessWidget {
           ],
         ),
 
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundColor: Color(0xFFEDE9FE),
-              child: Icon(
-                Icons.person,
-                color: Color(0xFF8162FF),
-              ),
-            ),
-          ),
-        ],
+        // actions: [
+        //   Padding(
+        //     padding: const EdgeInsets.only(right: 16),
+        //     child: CircleAvatar(
+        //       radius: 20,
+        //       backgroundColor: Color(0xFFEDE9FE),
+        //       child: Icon(
+        //         Icons.person,
+        //         color: Color(0xFF8162FF),
+        //       ),
+        //     ),
+        //   ),
+        // ],
       ),
 
       // =========================
@@ -411,16 +411,16 @@ class Dashboard extends StatelessWidget {
          currentIndex: 0, 
          onItemSelected: (index) {
            if (index == 1) { 
-            Get.toNamed(
+            Get.offNamed(
               AppRoutes.expenses
               ); 
             } else if (index == 2) { 
-              Get.toNamed(
+              Get.offNamed(
                 AppRoutes.profile
                 ); 
               } 
-              }, 
-              ),
+           },
+      ),
     );
   }
 }
