@@ -69,7 +69,7 @@ class AuthController extends GetxController {
       Get.snackbar(
         'Success',
         'You have successfully signed in.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.green,
         colorText: Colors.white,
         margin: const EdgeInsets.all(16),
@@ -85,7 +85,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // signup
+  // Signup
   Future<void> signup() async {
     final name = signupNameController.text.trim();
     final email = signupEmailController.text.trim();
@@ -150,9 +150,8 @@ class AuthController extends GetxController {
         _showError('Unable to create your account.');
         return;
       }
-      // Save name to Firebase Auth
+      // Save the name and the required data to the firebase
       await user.updateDisplayName(name);
-      // Save user data to Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -165,7 +164,7 @@ class AuthController extends GetxController {
       Get.snackbar(
         'Account Created',
         'Your account has been created successfully.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.green,
         colorText: Colors.white,
         margin: const EdgeInsets.all(16),
@@ -204,13 +203,13 @@ class AuthController extends GetxController {
       Get.snackbar(
         'Email Sent',
         'Please check your email for the password reset link.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.green,
         colorText: Colors.white,
         margin: const EdgeInsets.all(16),
       );
 
-      // Get.offNamed(AppRoutes.login);
+      Get.offNamed(AppRoutes.login);
     } on FirebaseAuthException catch (e) {
       _showFirebaseError(e);
     } catch (e) {
@@ -288,7 +287,7 @@ class AuthController extends GetxController {
     Get.snackbar(
       'Error',
       message,
-      snackPosition: SnackPosition.BOTTOM,
+      snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.redAccent,
       colorText: Colors.white,
       margin: const EdgeInsets.all(16),

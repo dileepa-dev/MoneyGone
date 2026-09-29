@@ -102,7 +102,7 @@ class Profile extends StatelessWidget {
                       buttonColor: Colors.red,
                       cancelTextColor: Colors.black87,
                       onConfirm: () {
-                        Get.back(); // close the dialog
+                        Get.back();
                         controller.logout();
                       },
                     );

@@ -37,6 +37,7 @@ class SignupScreen extends StatelessWidget {
                       height: isTablet ? 20 : 5,
                     ),
 
+                    // Image
                     SizedBox(
                       height: isTablet ? 260 : 205,
                       width: double.infinity,
@@ -48,6 +49,7 @@ class SignupScreen extends StatelessWidget {
 
                     const SizedBox(height: 5),
 
+                    // Text
                     RichText(
                       textAlign: TextAlign.center,
                       text: const TextSpan(
@@ -75,8 +77,9 @@ class SignupScreen extends StatelessWidget {
 
                     const SizedBox(height: 6),
 
+                    // Description
                     const Text(
-                      'Fill your details or continue with\nsocial media.',
+                      'Fill your details to register with\nMoney Gone.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(0xFF9B9B9B),
@@ -87,6 +90,7 @@ class SignupScreen extends StatelessWidget {
 
                     const SizedBox(height: 26),
 
+                    // Form
                     AuthTextField(
                       controller:
                       controller.signupNameController,
@@ -163,6 +167,7 @@ class SignupScreen extends StatelessWidget {
 
                     const SizedBox(height: 24),
 
+                    // Sign up button
                     Obx(
                           () => AuthButton(
                         text: 'Sign Up',
