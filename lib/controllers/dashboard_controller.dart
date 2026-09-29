@@ -3,63 +3,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class DashboardController extends GetxController {
-  // ============================================================
-  // FIREBASE
-  // ============================================================
-
-  final FirebaseFirestore _firestore =
-      FirebaseFirestore.instance;
-
-  final FirebaseAuth _auth =
-      FirebaseAuth.instance;
-
-  // ============================================================
-  // LOADING STATE
-  // ============================================================
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final RxBool isLoading = true.obs;
 
-  // ============================================================
-  // ALL EXPENSES
-  //
-  // All expenses belonging to the logged-in user are stored here.
-  // ============================================================
+  // All expenses belonging to the logged-in user
+  final RxList<Map<String, dynamic>> allExpenses = <Map<String, dynamic>>[].obs;
 
-  final RxList<Map<String, dynamic>> allExpenses =
-      <Map<String, dynamic>>[].obs;
-
-  // ============================================================
   // DATE RANGE FILTER
-  //
   // Initially set to the current month.
-  // ============================================================
+  final Rxn<DateTime> startDate = Rxn<DateTime>();
+  final Rxn<DateTime> endDate = Rxn<DateTime>();
 
-  final Rxn<DateTime> startDate =
-  Rxn<DateTime>();
-
-  final Rxn<DateTime> endDate =
-  Rxn<DateTime>();
-
-  // ============================================================
   // PIE CHART FILTER
-  //
   // Initially set to current year + current month.
-  // ============================================================
+  final RxnInt selectedYear = RxnInt();
+  final RxnInt selectedMonth = RxnInt();
 
-  final RxnInt selectedYear =
-  RxnInt();
-
-  final RxnInt selectedMonth =
-  RxnInt();
-
-  // ============================================================
-  // INITIALISE
-  // ============================================================
-
-  // ============================================================
-// RESET FILTERS + REFRESH
-// ============================================================
-
+  // Initialize and refresh
   Future<void> refreshDashboard() async {
     // Clear date range filters
     startDate.value = null;
@@ -80,10 +41,7 @@ class DashboardController extends GetxController {
     refreshDashboard();
   }
 
-  // ============================================================
-  // INITIAL FILTERS
-  // ============================================================
-
+  // Initial filters
   void _setInitialFilters() {
     final now = DateTime.now();
 
@@ -116,10 +74,7 @@ class DashboardController extends GetxController {
     return name.trim().split(' ').first;
   }
 
-  // ============================================================
-  // LOAD EXPENSES
-  // ============================================================
-
+  // Load all expenses
   Future<void> loadExpenses() async {
     try {
       isLoading.value = true;
@@ -155,25 +110,18 @@ class DashboardController extends GetxController {
         'Unable to load expenses.',
         snackPosition: SnackPosition.BOTTOM,
       );
-
       // print('Dashboard expense error: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
-  // ============================================================
-  // REFRESH
-  // ============================================================
-
+  // Refresh expenses
   Future<void> refreshExpenses() async {
     await refreshDashboard();
   }
 
-  // ============================================================
-  // GET EXPENSE DATE
-  // ============================================================
-
+  // Get the expenses date
   DateTime? getExpenseDate(
       Map<String, dynamic> expense,
       ) {
@@ -198,10 +146,7 @@ class DashboardController extends GetxController {
     return null;
   }
 
-  // ============================================================
-  // GET EXPENSE AMOUNT
-  // ============================================================
-
+  // Get expenses cost
   double getExpenseAmount(
       Map<String, dynamic> expense,
       ) {
@@ -222,10 +167,7 @@ class DashboardController extends GetxController {
     return 0;
   }
 
-  // ============================================================
-  // DATE RANGE FILTERED EXPENSES
-  // ============================================================
-
+  // Date range filter expenses
   List<Map<String, dynamic>> get filteredExpenses {
     // If filter is cleared, return everything.
     if (startDate.value == null ||
@@ -260,10 +202,7 @@ class DashboardController extends GetxController {
     }).toList();
   }
 
-  // ============================================================
-  // TOTAL EXPENSE
-  // ============================================================
-
+  // Get the total expense
   double get totalExpenses {
     return filteredExpenses.fold(
       0,
@@ -273,17 +212,8 @@ class DashboardController extends GetxController {
     );
   }
 
-  // ============================================================
-  // DAILY EXPENSE DATA
-  //
-  // Example:
-  //
-  // 2026-09-01 -> 2500
-  // 2026-09-02 -> 4500
-  //
+  // Daily expenses data
   // Multiple expenses on the same day are combined.
-  // ============================================================
-
   Map<DateTime, double> get dailyExpenses {
     final Map<DateTime, double> result = {};
 
@@ -308,10 +238,7 @@ class DashboardController extends GetxController {
     return result;
   }
 
-  // ============================================================
-  // SORTED DAILY EXPENSES
-  // ============================================================
-
+  // Sorted daily expenses
   List<MapEntry<DateTime, double>>
   get sortedDailyExpenses {
     final entries =
@@ -324,12 +251,8 @@ class DashboardController extends GetxController {
     return entries;
   }
 
-  // ============================================================
   // PIE CHART EXPENSES
-  //
   // Independent from the date range filter.
-  // ============================================================
-
   List<Map<String, dynamic>> get pieExpenses {
     return allExpenses.where((expense) {
       final date = getExpenseDate(expense);
@@ -354,10 +277,7 @@ class DashboardController extends GetxController {
     }).toList();
   }
 
-  // ============================================================
-  // CATEGORY TOTALS
-  // ============================================================
-
+  // Calculate category totals
   Map<String, double> get categoryTotals {
     final Map<String, double> result = {};
 
@@ -373,10 +293,7 @@ class DashboardController extends GetxController {
     return result;
   }
 
-  // ============================================================
-  // AVAILABLE YEARS
-  // ============================================================
-
+  // Years available
   List<int> get availableYears {
     final Set<int> years = {};
 
@@ -397,10 +314,7 @@ class DashboardController extends GetxController {
     return result;
   }
 
-  // ============================================================
-  // SELECT DATE RANGE
-  // ============================================================
-
+  // Select the date range
   void setDateRange(
       DateTime start,
       DateTime end,
@@ -409,39 +323,24 @@ class DashboardController extends GetxController {
     endDate.value = end;
   }
 
-  // ============================================================
-  // CLEAR DATE FILTER
-  //
+  // Clear the date range
   // Shows all expenses.
-  // ============================================================
-
   void clearDateFilter() {
     startDate.value = null;
     endDate.value = null;
   }
 
-  // ============================================================
   // SET PIE YEAR
-  // ============================================================
-
   void setPieYear(int? year) {
     selectedYear.value = year;
   }
 
-  // ============================================================
   // SET PIE MONTH
-  // ============================================================
-
   void setPieMonth(int? month) {
     selectedMonth.value = month;
   }
-
-  // ============================================================
   // CLEAR PIE FILTER
-  //
   // Shows all years + all months.
-  // ============================================================
-
   void clearPieFilter() {
     selectedYear.value = null;
     selectedMonth.value = null;

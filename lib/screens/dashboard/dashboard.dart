@@ -8,26 +8,15 @@ import '../../widgets/common/navigation.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
-
-  // ============================================================
-  // COLOUR
-  // ============================================================
-
   static const Color primaryColor = Color(0xFF2E7D32);
 
   @override
   Widget build(BuildContext context) {
-    // Create the controller for this screen.
     final controller = Get.put(DashboardController());
 
     return Scaffold(
       backgroundColor:
       const Color(0xFFF7F7F9),
-
-      // ========================================================
-      // APP BAR
-      // ========================================================
-
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
@@ -72,41 +61,27 @@ class Dashboard extends StatelessWidget {
           }
 
           return RefreshIndicator(
-            onRefresh:
-            controller.refreshExpenses,
-
+            onRefresh: controller.refreshExpenses,
             child: SingleChildScrollView(
-              physics:
-              const AlwaysScrollableScrollPhysics(),
-
-              padding:
-              const EdgeInsets.all(16),
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
 
               child: Column(
                 crossAxisAlignment:
                 CrossAxisAlignment.start,
                 children: [
 
-                  // ==================================================
-                  // DATE RANGE FILTER
-                  // ==================================================
-
+                  // Date range filter
                   _buildDateFilter(controller),
 
                   const SizedBox(height: 20),
 
-                  // ==================================================
-                  // TOTAL EXPENSE CARD
-                  // ==================================================
-
+                  // Total expenses
                   _buildTotalCard(controller),
 
                   const SizedBox(height: 24),
 
-                  // ==================================================
-                  // DAILY EXPENSES
-                  // ==================================================
-
+                  // Daily expenses
                   const Text(
                     'Daily Expenses',
                     style: TextStyle(
@@ -122,10 +97,7 @@ class Dashboard extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // ==================================================
-                  // CATEGORY BREAKDOWN
-                  // ==================================================
-
+                  // Category pie chart
                   const Text(
                     'Category Breakdown',
                     style: TextStyle(
@@ -147,10 +119,7 @@ class Dashboard extends StatelessWidget {
         },
       ),
 
-      // ========================================================
-      // BOTTOM NAVIGATION
-      // ========================================================
-
+      // Bottom navigation bar
       bottomNavigationBar:
       BottomNavBar(
         currentIndex: 0,
@@ -170,10 +139,7 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // DATE FILTER
-  // ============================================================
-
+  // Date filter code
   Widget _buildDateFilter(
       DashboardController controller,
       ) {
@@ -205,11 +171,7 @@ class Dashboard extends StatelessWidget {
 
           Row(
             children: [
-
-              // ==================================================
-              // DATE RANGE BUTTON
-              // ==================================================
-
+              // Date range button
               Expanded(
                 child: InkWell(
                   borderRadius:
@@ -305,10 +267,7 @@ class Dashboard extends StatelessWidget {
 
               const SizedBox(width: 8),
 
-              // ==================================================
-              // CLEAR
-              // ==================================================
-
+              // Clear filters
               OutlinedButton(
                 onPressed:
                 controller.clearDateFilter,
@@ -342,10 +301,7 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // DATE RANGE TEXT
-  // ============================================================
-
+  // Date range txt
   String _dateRangeText(
       DashboardController controller,
       ) {
@@ -361,10 +317,7 @@ class Dashboard extends StatelessWidget {
         '${_formatDate(controller.endDate.value!)}';
   }
 
-  // ============================================================
-  // TOTAL EXPENSE CARD
-  // ============================================================
-
+  // Total expenses code
   Widget _buildTotalCard(
       DashboardController controller,
       ) {
@@ -435,10 +388,7 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // BAR CHART
-  // ============================================================
-
+  // Bar chart
   Widget _buildBarChart(
       DashboardController controller,
       ) {
@@ -464,8 +414,7 @@ class Dashboard extends StatelessWidget {
         ? 100.0
         : (highestValue * 1.2).toDouble();
 
-    // Width based on number of dates.
-    //
+    // Width based on number of dates
     // This is what makes the chart scrollable.
     final chartWidth =
         entries.length * 65.0;
@@ -512,10 +461,7 @@ class Dashboard extends StatelessWidget {
                 show: false,
               ),
 
-              // ==================================================
               // GRID
-              // ==================================================
-
               gridData:
               FlGridData(
                 show: true,
@@ -527,10 +473,7 @@ class Dashboard extends StatelessWidget {
                     maxY),
               ),
 
-              // ==================================================
-              // TOUCH / TOOLTIP
-              // ==================================================
-
+              // TOUCH
               barTouchData:
               BarTouchData(
                 enabled: true,
@@ -564,10 +507,7 @@ class Dashboard extends StatelessWidget {
                 ),
               ),
 
-              // ==================================================
               // AXIS TITLES
-              // ==================================================
-
               titlesData:
               FlTitlesData(
 
@@ -589,10 +529,7 @@ class Dashboard extends StatelessWidget {
                   ),
                 ),
 
-                // ==================================================
                 // Y AXIS
-                // ==================================================
-
                 leftTitles:
                 AxisTitles(
                   sideTitles:
@@ -621,10 +558,7 @@ class Dashboard extends StatelessWidget {
                   ),
                 ),
 
-                // ==================================================
                 // X AXIS
-                // ==================================================
-
                 bottomTitles:
                 AxisTitles(
                   sideTitles:
@@ -669,10 +603,7 @@ class Dashboard extends StatelessWidget {
                 ),
               ),
 
-              // ==================================================
               // BARS
-              // ==================================================
-
               barGroups:
               List.generate(
                 entries.length,
@@ -707,10 +638,7 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // Y AXIS INTERVAL
-  // ============================================================
-
+  // Y AXIS gaps
   double _calculateInterval(
       double maxY,
       ) {
@@ -733,10 +661,7 @@ class Dashboard extends StatelessWidget {
     return maxY / 5;
   }
 
-  // ============================================================
-  // PIE CHART
-  // ============================================================
-
+  // PIE Chart
   Widget _buildPieChart(
       DashboardController controller,
       ) {
@@ -757,18 +682,10 @@ class Dashboard extends StatelessWidget {
 
       child: Column(
         children: [
-
-          // ==================================================
           // YEAR + MONTH FILTER
-          // ==================================================
-
           Row(
             children: [
-
-              // ==================================================
               // YEAR
-              // ==================================================
-
               Expanded(
                 child:
                 DropdownButtonFormField<int?>(
@@ -821,10 +738,7 @@ class Dashboard extends StatelessWidget {
 
               const SizedBox(width: 10),
 
-              // ==================================================
               // MONTH
-              // ==================================================
-
               Expanded(
                 child:
                 DropdownButtonFormField<int?>(
@@ -883,10 +797,7 @@ class Dashboard extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // ==================================================
-          // CLEAR PIE FILTER
-          // ==================================================
-
+          // Clear pie chart filter
           Align(
             alignment:
             Alignment.centerRight,
@@ -908,10 +819,7 @@ class Dashboard extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // ==================================================
           // PIE
-          // ==================================================
-
           if (categories.isEmpty)
             const SizedBox(
               height: 220,
@@ -932,10 +840,7 @@ class Dashboard extends StatelessWidget {
               child: Row(
                 children: [
 
-                  // ==================================================
                   // PIE CHART
-                  // ==================================================
-
                   Expanded(
                     flex: 5,
 
@@ -957,10 +862,7 @@ class Dashboard extends StatelessWidget {
                   const SizedBox(
                       width: 30),
 
-                  // ==================================================
                   // LEGEND
-                  // ==================================================
-
                   Expanded(
                     flex: 4,
 
@@ -990,10 +892,7 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // PIE SECTIONS
-  // ============================================================
-
+  // PIE chart sections
   List<PieChartSectionData>
   _buildPieSections(
       Map<String, double> categories,
@@ -1055,10 +954,7 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // LEGEND
-  // ============================================================
-
+  // LEGEND section
   List<Widget> _buildLegend(
       Map<String, double> categories,
       ) {
@@ -1116,10 +1012,7 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // EMPTY CARD
-  // ============================================================
-
+  // EMPTY chart card
   Widget _emptyCard(
       String message,
       ) {
@@ -1163,10 +1056,7 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // DATE FORMAT
-  // ============================================================
-
+  // Date format
   static String _formatDate(
       DateTime date,
       ) {
@@ -1175,10 +1065,7 @@ class Dashboard extends StatelessWidget {
         '${date.year}';
   }
 
-  // ============================================================
-  // MONTH NAME
-  // ============================================================
-
+  // Month name
   static String _monthName(
       int month,
       ) {
@@ -1201,10 +1088,7 @@ class Dashboard extends StatelessWidget {
   }
 }
 
-// ================================================================
-// CATEGORY LEGEND ITEM
-// ================================================================
-
+// Category item
 class _CategoryItem
     extends StatelessWidget {
   final Color color;
