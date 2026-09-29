@@ -11,6 +11,7 @@ class ExpenseController extends GetxController {
   final RxBool isSaving = false.obs;
   final RxBool isDeleting = false.obs;
   final RxString errorMessage = ''.obs;
+  final RxString searchQuery = ''.obs;
   StreamSubscription<List<Expense>>? _expenseSubscription;
 
   // Filters
@@ -56,9 +57,24 @@ class ExpenseController extends GetxController {
 
   // FILTERED EXPENSES
   List<Expense> get filteredExpenses {
-    List<Expense> result =
-    List<Expense>.from(expenses);
+    List<Expense> result = List<Expense>.from(expenses);
 
+    // Search filter
+    if (searchQuery.value.trim().isNotEmpty) {
+      final query =
+      searchQuery.value.trim().toLowerCase();
+
+      result = result.where((expense) {
+        final title =
+        expense.title.toLowerCase();
+
+        final description =
+        (expense.description ?? '').toLowerCase();
+
+        return title.contains(query) ||
+            description.contains(query);
+      }).toList();
+    }
     // Date filter
     if (selectedMonth.value != null) {
       final selectedDate = selectedMonth.value!;
@@ -93,6 +109,11 @@ class ExpenseController extends GetxController {
           (total, expense) =>
       total + expense.amount,
     );
+  }
+
+  // Search
+  void setSearchQuery(String query) {
+    searchQuery.value = query;
   }
 
   // Add expense
