@@ -66,6 +66,9 @@ class AuthController extends GetxController {
         password: password,
       );
 
+      loginEmailController.text = "";
+      loginPasswordController.text = "";
+
       Get.snackbar(
         'Success',
         'You have successfully signed in.',

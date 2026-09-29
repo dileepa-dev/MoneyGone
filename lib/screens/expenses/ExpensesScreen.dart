@@ -2,19 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../controllers/dashboard_controller.dart';
 import '../../controllers/expense_controller.dart';
+import '../../controllers/theme_controller.dart';
 import '../../model/expense.dart';
 import '../../widgets/common/navigation.dart';
 import 'AddEditExpenseScreen.dart';
 import '../../app/routes/app_routes.dart';
 
-class ExpensesScreen extends StatelessWidget {
-  ExpensesScreen({super.key});
+class ExpensesScreen extends StatefulWidget {
+  const ExpensesScreen({super.key});
 
-  final ExpenseController controller =
-  Get.put(ExpenseController());
+  @override
+  State<ExpensesScreen> createState() => _ExpensesScreenState();
+}
 
+class _ExpensesScreenState extends State<ExpensesScreen> {
+  final ExpenseController controller = Get.put(ExpenseController());
+  final dashboardController = Get.put(DashboardController());
+  final TextEditingController searchController = TextEditingController();
   final Color green = const Color(0xFF2E7D32);
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,205 +37,203 @@ class ExpensesScreen extends StatelessWidget {
         centerTitle: true,
         title: const Text(
           'Expenses',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
+
+        actions: [
+          Obx(
+                () {
+              final themeController = Get.find<ThemeController>();
+
+              return IconButton(
+                onPressed: themeController.toggleTheme,
+                icon: Icon(
+                  themeController.isDarkMode
+                      ? Icons.light_mode_outlined
+                      : Icons.dark_mode_outlined,
+                ),
+              );
+            },
+          ),
+        ],
       ),
 
-      body: Obx(
-            () {
-          final expenses = controller.filteredExpenses;
+      body: Obx(() {
+        final expenses = controller.filteredExpenses;
 
-          // Loading
-          if (controller.isLoading.value) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+        // Loading
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          if (controller.errorMessage.value.isNotEmpty &&
-              expenses.isEmpty) {
-            return _buildErrorState();
-          }
+        if (controller.errorMessage.value.isNotEmpty && expenses.isEmpty) {
+          return _buildErrorState();
+        }
 
-          return Column(
-            children: [
-              // Total expenses
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.fromLTRB(
-                  16,
-                  12,
-                  16,
-                  8,
-                ),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: green,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Total Expenses',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Rs. ${controller.filteredTotal.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+        return Column(
+          children: [
+            // Total expenses
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: green,
+                borderRadius: BorderRadius.circular(16),
               ),
-
-              // Filters
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildMonthFilter(context),
-                        ),
-
-                        const SizedBox(width: 10),
-
-                        Expanded(
-                          child: _buildCategoryFilter(),
-                        ),
-
-                        const SizedBox(width: 8),
-
-                        SizedBox(
-                          height: 48,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              controller.clearFilters();
-                            },
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                            ),
-                            child: const Icon(
-                              Icons.clear,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    const Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.red,
-                          size: 16,
-                        ),
-                        SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            'Swipe left to delete • Tap an expense to edit',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // Expense history
-              Expanded(
-                child: expenses.isEmpty
-                    ? _buildEmptyState()
-                    : RefreshIndicator(
-                  onRefresh: controller.refreshExpenses,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: expenses.length,
-                    itemBuilder: (context, index) {
-                      final expense = expenses[index];
-
-                      return _buildExpenseCard(
-                        context,
-                        expense,
-                      );
-                    },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Total Expenses',
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Rs. ${controller.filteredTotal.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Filters
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Search bar
+                  TextField(
+                    controller: searchController,
+                    onChanged: controller.setSearchQuery,
+                    decoration: InputDecoration(
+                      hintText: 'Search expenses...',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: Obx(
+                            () => controller.searchQuery.value.isNotEmpty
+                            ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            searchController.clear();
+                            controller.setSearchQuery('');
+                          },
+                        )
+                            : const SizedBox.shrink(),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: green, width: 2),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Month + Category + Clear
+                  Row(
+                    children: [
+                      Expanded(child: _buildMonthFilter(context)),
+                      const SizedBox(width: 10),
+                      Expanded(child: _buildCategoryFilter()),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        height: 48,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            searchController.clear();
+                            controller.clearFilters();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                          ),
+                          child: const Icon(Icons.clear, size: 20),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  const Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.red, size: 16),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Swipe left to delete • '
+                              'Tap an expense to edit',
+                          style: TextStyle(color: Colors.red, fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Expense history
+            Expanded(
+              child: expenses.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                onRefresh: controller.refreshExpenses,
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: expenses.length,
+                  itemBuilder: (context, index) {
+                    final expense = expenses[index];
+
+                    return _buildExpenseCard(context, expense);
+                  },
                 ),
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        );
+      }),
 
       // Add Expense
       floatingActionButton: FloatingActionButton(
         backgroundColor: green,
         onPressed: () {
-          Get.to(
-                () => const AddEditExpenseScreen(),
-          );
+          Get.to(() => const AddEditExpenseScreen());
         },
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
 
       bottomNavigationBar: BottomNavBar(
         currentIndex: 1,
         onItemSelected: (index) {
           if (index == 0) {
-            Get.offNamed(
-              AppRoutes.dashBoard,
-            );
+            Get.offNamed(AppRoutes.dashBoard);
+            dashboardController.refreshDashboard();
           } else if (index == 2) {
-            Get.offNamed(
-              AppRoutes.profile,
-            );
+            Get.offNamed(AppRoutes.profile);
           }
         },
       ),
     );
   }
 
-
   // Month filter
-  Widget _buildMonthFilter(
-      BuildContext context,
-      ) {
+  Widget _buildMonthFilter(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: () async {
         final selected = await showDatePicker(
           context: context,
-          initialDate:
-          controller.selectedMonth.value ??
-              DateTime.now(),
+          initialDate: controller.selectedMonth.value ?? DateTime.now(),
           firstDate: DateTime(2020),
           lastDate: DateTime(2035),
         );
@@ -236,9 +247,9 @@ class ExpensesScreen extends StatelessWidget {
             () => Text(
           controller.selectedMonth.value == null
               ? 'Month'
-              : DateFormat('dd MMM yyyy').format(
-            controller.selectedMonth.value!,
-          ),
+              : DateFormat(
+            'dd MMM yyyy',
+          ).format(controller.selectedMonth.value!),
         ),
       ),
     );
@@ -246,47 +257,37 @@ class ExpensesScreen extends StatelessWidget {
 
   // Category filter
   Widget _buildCategoryFilter() {
-    return Obx(
-          () {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DropdownButtonFormField<ExpenseCategory?>(
-              initialValue: controller.selectedCategory.value,
-              decoration: const InputDecoration(
-                labelText: 'Category',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem<ExpenseCategory?>(
-                  value: null,
-                  child: Text('All'),
-                ),
-                ...ExpenseCategory.values.map(
-                      (category) {
-                    return DropdownMenuItem<ExpenseCategory?>(
-                      value: category,
-                      child: Text(
-                        category.displayName,
-                      ),
-                    );
-                  },
-                ),
-              ],
-              onChanged: controller.setCategory,
+    return Obx(() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DropdownButtonFormField<ExpenseCategory?>(
+            initialValue: controller.selectedCategory.value,
+            decoration: const InputDecoration(
+              labelText: 'Category',
+              border: OutlineInputBorder(),
             ),
-          ],
-        );
-      },
-    );
+            items: [
+              const DropdownMenuItem<ExpenseCategory?>(
+                value: null,
+                child: Text('All'),
+              ),
+              ...ExpenseCategory.values.map((category) {
+                return DropdownMenuItem<ExpenseCategory?>(
+                  value: category,
+                  child: Text(category.displayName),
+                );
+              }),
+            ],
+            onChanged: controller.setCategory,
+          ),
+        ],
+      );
+    });
   }
 
-
   // Expense card
-  Widget _buildExpenseCard(
-      BuildContext context,
-      Expense expense,
-      ) {
+  Widget _buildExpenseCard(BuildContext context, Expense expense) {
     return Dismissible(
       key: Key(expense.id),
 
@@ -300,10 +301,7 @@ class ExpensesScreen extends StatelessWidget {
           color: Colors.red,
           borderRadius: BorderRadius.circular(14),
         ),
-        child: const Icon(
-          Icons.delete,
-          color: Colors.white,
-        ),
+        child: const Icon(Icons.delete, color: Colors.white),
       ),
 
       // Delete confirmation
@@ -327,9 +325,7 @@ class ExpensesScreen extends StatelessWidget {
                 },
                 child: const Text(
                   'Delete',
-                  style: TextStyle(
-                    color: Colors.red,
-                  ),
+                  style: TextStyle(color: Colors.red),
                 ),
               ),
             ],
@@ -339,10 +335,7 @@ class ExpensesScreen extends StatelessWidget {
 
       // Delete
       onDismissed: (_) async {
-        final success =
-        await controller.deleteExpense(
-          expense.id,
-        );
+        final success = await controller.deleteExpense(expense.id);
 
         if (success) {
           Get.snackbar(
@@ -369,29 +362,17 @@ class ExpensesScreen extends StatelessWidget {
         child: ListTile(
           // Tap expense -> Edit
           onTap: () {
-            Get.to(
-                  () => AddEditExpenseScreen(
-                expense: expense,
-              ),
-            );
+            Get.to(() => AddEditExpenseScreen(expense: expense));
           },
 
           leading: CircleAvatar(
-            backgroundColor:
-            green.withValues(alpha: 0.1),
-            child: Icon(
-              _getCategoryIcon(
-                expense.category,
-              ),
-              color: green,
-            ),
+            backgroundColor: green.withValues(alpha: 0.1),
+            child: Icon(_getCategoryIcon(expense.category), color: green),
           ),
 
           title: Text(
             expense.title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
 
           subtitle: Text(
@@ -418,8 +399,7 @@ class ExpensesScreen extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.receipt_long_outlined,
@@ -429,10 +409,7 @@ class ExpensesScreen extends StatelessWidget {
             const SizedBox(height: 12),
             const Text(
               'No expenses found',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
             const Text(
@@ -451,21 +428,13 @@ class ExpensesScreen extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 60,
-              color: Colors.redAccent,
-            ),
+            const Icon(Icons.error_outline, size: 60, color: Colors.redAccent),
             const SizedBox(height: 12),
             const Text(
               'Unable to load expenses',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -483,11 +452,8 @@ class ExpensesScreen extends StatelessWidget {
     );
   }
 
-
   // Category icons
-  IconData _getCategoryIcon(
-      ExpenseCategory category,
-      ) {
+  IconData _getCategoryIcon(ExpenseCategory category) {
     switch (category) {
       case ExpenseCategory.food:
         return Icons.restaurant;

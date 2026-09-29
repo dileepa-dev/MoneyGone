@@ -34,9 +34,9 @@ class AuthTextField extends StatelessWidget {
 
       textInputAction: textInputAction,
 
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 14,
-        color: Colors.black,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
 
       cursorColor: const Color(0xFF0DB14B),
@@ -47,6 +47,16 @@ class AuthTextField extends StatelessWidget {
 
         floatingLabelBehavior:
         FloatingLabelBehavior.always,
+
+        labelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
+          fontSize: 12,
+        ),
+
+        floatingLabelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
+          fontSize: 12,
+        ),
 
         suffixIcon: suffixIcon,
 
