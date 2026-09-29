@@ -1,435 +1,1212 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:moneygone/app/routes/app_routes.dart';
+import 'package:get/get.dart';
 
+import '../../app/routes/app_routes.dart';
+import '../../controllers/dashboard_controller.dart';
 import '../../widgets/common/navigation.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
 
-  // Sample daily expenses
-  final List<double> dailyExpenses = const [
-    1200,
-    2500,
-    1800,
-    3200,
-    2100,
-    4500,
-    2800,
-  ];
+  // ============================================================
+  // COLOUR
+  // ============================================================
+
+  static const Color primaryColor = Color(0xFF2E7D32);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F9),
+    // Create the controller for this screen.
+    final controller = Get.put(DashboardController());
 
-      // =========================
+    return Scaffold(
+      backgroundColor:
+      const Color(0xFFF7F7F9),
+
+      // ========================================================
       // APP BAR
-      // =========================
+      // ========================================================
+
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
 
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Column(
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
           children: [
-            Text(
-              'Hello, Dileepa 👋',
+            const Text(
+              'Dashboard 🚀',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(
-              'Here\'s your spending summary',
-              style: TextStyle(
+              'Here\'s your spending summary ${controller.firstName} 📈',
+              style: const TextStyle(
                 fontSize: 12,
-                color: Colors.grey,
+                color: Colors.black54,
               ),
             ),
           ],
         ),
-
-        // actions: [
-        //   Padding(
-        //     padding: const EdgeInsets.only(right: 16),
-        //     child: CircleAvatar(
-        //       radius: 20,
-        //       backgroundColor: Color(0xFFEDE9FE),
-        //       child: Icon(
-        //         Icons.person,
-        //         color: Color(0xFF8162FF),
-        //       ),
-        //     ),
-        //   ),
-        // ],
       ),
 
-      // =========================
+      // ========================================================
       // BODY
-      // =========================
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      // ========================================================
+
+      body: Obx(
+            () {
+          if (controller.isLoading.value) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: primaryColor,
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh:
+            controller.refreshExpenses,
+
+            child: SingleChildScrollView(
+              physics:
+              const AlwaysScrollableScrollPhysics(),
+
+              padding:
+              const EdgeInsets.all(16),
+
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+
+                  // ==================================================
+                  // DATE RANGE FILTER
+                  // ==================================================
+
+                  _buildDateFilter(controller),
+
+                  const SizedBox(height: 20),
+
+                  // ==================================================
+                  // TOTAL EXPENSE CARD
+                  // ==================================================
+
+                  _buildTotalCard(controller),
+
+                  const SizedBox(height: 24),
+
+                  // ==================================================
+                  // DAILY EXPENSES
+                  // ==================================================
+
+                  const Text(
+                    'Daily Expenses',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  _buildBarChart(controller),
+
+                  const SizedBox(height: 24),
+
+                  // ==================================================
+                  // CATEGORY BREAKDOWN
+                  // ==================================================
+
+                  const Text(
+                    'Category Breakdown',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  _buildPieChart(controller),
+
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+
+      // ========================================================
+      // BOTTOM NAVIGATION
+      // ========================================================
+
+      bottomNavigationBar:
+      BottomNavBar(
+        currentIndex: 0,
+
+        onItemSelected: (index) {
+          if (index == 1) {
+            Get.offNamed(
+              AppRoutes.expenses,
+            );
+          } else if (index == 2) {
+            Get.offNamed(
+              AppRoutes.profile,
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  // ============================================================
+  // DATE FILTER
+  // ============================================================
+
+  Widget _buildDateFilter(
+      DashboardController controller,
+      ) {
+    return Container(
+      padding:
+      const EdgeInsets.all(16),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+        BorderRadius.circular(18),
+      ),
+
+      child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+
+        children: [
+
+          const Text(
+            'Expense Date Range',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Row(
             children: [
 
-              // =========================
-              // MONTH
-              // =========================
-              const Text(
-                'September 2026',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
+              // ==================================================
+              // DATE RANGE BUTTON
+              // ==================================================
 
-              const SizedBox(height: 12),
+              Expanded(
+                child: InkWell(
+                  borderRadius:
+                  BorderRadius.circular(12),
 
-              // =========================
-              // TOTAL EXPENSE CARD
-              // =========================
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8162FF),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Total Expenses',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
+                  onTap: () async {
+                    final now =
+                    DateTime.now();
+
+                    final picked =
+                    await showDateRangePicker(
+                      context: Get.context!,
+                      firstDate:
+                      DateTime(2020),
+                      lastDate: DateTime(
+                        now.year + 1,
+                        12,
+                        31,
                       ),
+
+                      initialDateRange:
+                      controller.startDate
+                          .value !=
+                          null &&
+                          controller.endDate
+                              .value !=
+                              null
+                          ? DateTimeRange(
+                        start: controller
+                            .startDate
+                            .value!,
+                        end: controller
+                            .endDate
+                            .value!,
+                      )
+                          : null,
+                    );
+
+                    if (picked != null) {
+                      controller.setDateRange(
+                        picked.start,
+                        picked.end,
+                      );
+                    }
+                  },
+
+                  child: Container(
+                    padding:
+                    const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 13,
                     ),
 
-                    SizedBox(height: 8),
-
-                    Text(
-                      'Rs. 45,250.00',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    decoration:
+                    BoxDecoration(
+                      color:
+                      const Color(
+                          0xFFF7F7F9),
+                      borderRadius:
+                      BorderRadius.circular(
+                          12),
                     ),
 
-                    SizedBox(height: 8),
-
-                    Row(
+                    child: Row(
                       children: [
-                        Icon(
+
+                        const Icon(
                           Icons.calendar_month,
-                          color: Colors.white70,
-                          size: 16,
+                          size: 20,
+                          color: primaryColor,
                         ),
-                        SizedBox(width: 6),
-                        Text(
-                          'This month',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
+
+                        const SizedBox(
+                            width: 8),
+
+                        Expanded(
+                          child: Text(
+                            _dateRangeText(
+                                controller),
+                            style:
+                            const TextStyle(
+                              fontSize: 12,
+                              fontWeight:
+                              FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // =========================
-              // DAILY EXPENSES TITLE
-              // =========================
-              const Text(
-                'Daily Expenses',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // =========================
-              // BAR CHART
-              // =========================
-              Container(
-                height: 280,
-                padding: const EdgeInsets.fromLTRB(12, 20, 20, 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: BarChart(
-                  BarChartData(
-                    maxY: 5000,
-
-                    borderData: FlBorderData(
-                      show: false,
-                    ),
-
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: 1000,
-                    ),
-
-                    titlesData: FlTitlesData(
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: false,
-                        ),
-                      ),
-
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: false,
-                        ),
-                      ),
-
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 45,
-                          interval: 1000,
-                          getTitlesWidget: (value, meta) {
-                            return Text(
-                              '${value.toInt()}',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            const days = [
-                              'Mon',
-                              'Tue',
-                              'Wed',
-                              'Thu',
-                              'Fri',
-                              'Sat',
-                              'Sun',
-                            ];
-
-                            if (value.toInt() >= days.length) {
-                              return const SizedBox();
-                            }
-
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                days[value.toInt()],
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-
-                    barGroups: List.generate(
-                      dailyExpenses.length,
-                      (index) {
-                        return BarChartGroupData(
-                          x: index,
-                          barRods: [
-                            BarChartRodData(
-                              toY: dailyExpenses[index],
-                              width: 18,
-                              borderRadius: BorderRadius.circular(5),
-                              color: const Color(0xFF8162FF),
-                            ),
-                          ],
-                        );
-                      },
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(width: 8),
 
-              // =========================
-              // CATEGORY TITLE
-              // =========================
-              const Text(
-                'Category Breakdown',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              // ==================================================
+              // CLEAR
+              // ==================================================
+
+              OutlinedButton(
+                onPressed:
+                controller.clearDateFilter,
+
+                style:
+                OutlinedButton.styleFrom(
+                  padding:
+                  const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 13,
+                  ),
+
+                  shape:
+                  RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.circular(
+                        12),
+                  ),
+                ),
+
+                child: const Text(
+                  'Clear',
+                  style:
+                  TextStyle(fontSize: 12),
                 ),
               ),
-
-              const SizedBox(height: 12),
-
-              // =========================
-              // PIE CHART
-              // =========================
-              Container(
-                height: 300,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-
-                    // PIE CHART
-                    Expanded(
-                      flex: 5,
-                      child: PieChart(
-                        PieChartData(
-                          centerSpaceRadius: 45,
-                          sectionsSpace: 3,
-
-                          sections: [
-                            PieChartSectionData(
-                              value: 40,
-                              title: '40%',
-                              radius: 65,
-                              titleStyle: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-
-                            PieChartSectionData(
-                              value: 25,
-                              title: '25%',
-                              radius: 65,
-                              titleStyle: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-
-                            PieChartSectionData(
-                              value: 20,
-                              title: '20%',
-                              radius: 65,
-                              titleStyle: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-
-                            PieChartSectionData(
-                              value: 15,
-                              title: '15%',
-                              radius: 65,
-                              titleStyle: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // CATEGORY LEGEND
-                    Expanded(
-                      flex: 4,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          _CategoryItem(
-                            color: Colors.blue,
-                            title: 'Food',
-                            percentage: '40%',
-                          ),
-                          SizedBox(height: 16),
-
-                          _CategoryItem(
-                            color: Colors.orange,
-                            title: 'Transport',
-                            percentage: '25%',
-                          ),
-                          SizedBox(height: 16),
-
-                          _CategoryItem(
-                            color: Colors.green,
-                            title: 'Bills',
-                            percentage: '20%',
-                          ),
-                          SizedBox(height: 16),
-
-                          _CategoryItem(
-                            color: Colors.purple,
-                            title: 'Other',
-                            percentage: '15%',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 30),
             ],
           ),
-        ),
-      ),
-
-      // =========================
-      // BOTTOM NAVIGATION
-      // =========================
-      bottomNavigationBar: BottomNavBar(
-         currentIndex: 0, 
-         onItemSelected: (index) {
-           if (index == 1) { 
-            Get.offNamed(
-              AppRoutes.expenses
-              ); 
-            } else if (index == 2) { 
-              Get.offNamed(
-                AppRoutes.profile
-                ); 
-              } 
-           },
+        ],
       ),
     );
   }
+
+  // ============================================================
+  // DATE RANGE TEXT
+  // ============================================================
+
+  String _dateRangeText(
+      DashboardController controller,
+      ) {
+    if (controller.startDate.value ==
+        null ||
+        controller.endDate.value ==
+            null) {
+      return 'All dates';
+    }
+
+    return '${_formatDate(controller.startDate.value!)}'
+        ' - '
+        '${_formatDate(controller.endDate.value!)}';
+  }
+
+  // ============================================================
+  // TOTAL EXPENSE CARD
+  // ============================================================
+
+  Widget _buildTotalCard(
+      DashboardController controller,
+      ) {
+    return Container(
+      width: double.infinity,
+
+      padding:
+      const EdgeInsets.all(20),
+
+      decoration: BoxDecoration(
+        color: primaryColor,
+        borderRadius:
+        BorderRadius.circular(20),
+      ),
+
+      child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+
+        children: [
+
+          const Text(
+            'Total Expenses',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 14,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            'Rs. ${controller.totalExpenses.toStringAsFixed(2)}',
+
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Row(
+            children: [
+
+              const Icon(
+                Icons.calendar_month,
+                color: Colors.white70,
+                size: 16,
+              ),
+
+              const SizedBox(width: 6),
+
+              Text(
+                _dateRangeText(controller),
+
+                style:
+                const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // BAR CHART
+  // ============================================================
+
+  Widget _buildBarChart(
+      DashboardController controller,
+      ) {
+    final entries =
+        controller.sortedDailyExpenses;
+
+    if (entries.isEmpty) {
+      return _emptyCard(
+        'No expenses found for this date range.',
+      );
+    }
+
+    // Find highest expense.
+    final highestValue =
+    entries
+        .map((entry) => entry.value)
+        .reduce(
+          (a, b) => a > b ? a : b,
+    );
+
+    // Give some extra space above the highest bar.
+    final double maxY = highestValue <= 0
+        ? 100.0
+        : (highestValue * 1.2).toDouble();
+
+    // Width based on number of dates.
+    //
+    // This is what makes the chart scrollable.
+    final chartWidth =
+        entries.length * 65.0;
+
+    return Container(
+      height: 310,
+
+      padding:
+      const EdgeInsets.fromLTRB(
+        8,
+        20,
+        16,
+        12,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+        BorderRadius.circular(20),
+      ),
+
+      child: SingleChildScrollView(
+        scrollDirection:
+        Axis.horizontal,
+
+        child: SizedBox(
+          width:
+          chartWidth < 350
+              ? 350
+              : chartWidth,
+
+          child: BarChart(
+            BarChartData(
+
+              minY: 0,
+
+              maxY: maxY,
+
+              alignment:
+              BarChartAlignment.spaceAround,
+
+              borderData:
+              FlBorderData(
+                show: false,
+              ),
+
+              // ==================================================
+              // GRID
+              // ==================================================
+
+              gridData:
+              FlGridData(
+                show: true,
+                drawVerticalLine:
+                false,
+
+                horizontalInterval:
+                _calculateInterval(
+                    maxY),
+              ),
+
+              // ==================================================
+              // TOUCH / TOOLTIP
+              // ==================================================
+
+              barTouchData:
+              BarTouchData(
+                enabled: true,
+
+                touchTooltipData:
+                BarTouchTooltipData(
+                  getTooltipItem:
+                      (
+                      group,
+                      groupIndex,
+                      rod,
+                      rodIndex,
+                      ) {
+                    final entry =
+                    entries[
+                    group.x.toInt()];
+
+                    return BarTooltipItem(
+                      '${_formatDate(entry.key)}\n'
+                          'Rs. ${entry.value.toStringAsFixed(2)}',
+
+                      const TextStyle(
+                        color:
+                        Colors.white,
+                        fontWeight:
+                        FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // ==================================================
+              // AXIS TITLES
+              // ==================================================
+
+              titlesData:
+              FlTitlesData(
+
+                // TOP
+                topTitles:
+                const AxisTitles(
+                  sideTitles:
+                  SideTitles(
+                    showTitles: false,
+                  ),
+                ),
+
+                // RIGHT
+                rightTitles:
+                const AxisTitles(
+                  sideTitles:
+                  SideTitles(
+                    showTitles: false,
+                  ),
+                ),
+
+                // ==================================================
+                // Y AXIS
+                // ==================================================
+
+                leftTitles:
+                AxisTitles(
+                  sideTitles:
+                  SideTitles(
+                    showTitles: true,
+                    reservedSize: 48,
+
+                    interval:
+                    _calculateInterval(
+                        maxY),
+
+                    getTitlesWidget:
+                        (value, meta) {
+                      return Text(
+                        value.toInt()
+                            .toString(),
+
+                        style:
+                        const TextStyle(
+                          fontSize: 10,
+                          color:
+                          Colors.grey,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // ==================================================
+                // X AXIS
+                // ==================================================
+
+                bottomTitles:
+                AxisTitles(
+                  sideTitles:
+                  SideTitles(
+                    showTitles: true,
+                    reservedSize: 35,
+
+                    getTitlesWidget:
+                        (value, meta) {
+                      final index =
+                      value.toInt();
+
+                      if (index < 0 ||
+                          index >=
+                              entries.length) {
+                        return const SizedBox();
+                      }
+
+                      final date =
+                          entries[index].key;
+
+                      return Padding(
+                        padding:
+                        const EdgeInsets
+                            .only(
+                          top: 8,
+                        ),
+
+                        child: Text(
+                          '${date.day}/${date.month}',
+
+                          style:
+                          const TextStyle(
+                            fontSize: 10,
+                            color:
+                            Colors.grey,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+
+              // ==================================================
+              // BARS
+              // ==================================================
+
+              barGroups:
+              List.generate(
+                entries.length,
+                    (index) {
+                  final entry =
+                  entries[index];
+
+                  return BarChartGroupData(
+                    x: index,
+
+                    barRods: [
+                      BarChartRodData(
+                        toY: entry.value,
+                        width: 24,
+
+                        borderRadius:
+                        BorderRadius
+                            .circular(
+                            5),
+
+                        color:
+                        primaryColor,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // Y AXIS INTERVAL
+  // ============================================================
+
+  double _calculateInterval(
+      double maxY,
+      ) {
+    if (maxY <= 1000) {
+      return 200;
+    }
+
+    if (maxY <= 5000) {
+      return 1000;
+    }
+
+    if (maxY <= 10000) {
+      return 2000;
+    }
+
+    if (maxY <= 50000) {
+      return 10000;
+    }
+
+    return maxY / 5;
+  }
+
+  // ============================================================
+  // PIE CHART
+  // ============================================================
+
+  Widget _buildPieChart(
+      DashboardController controller,
+      ) {
+    final categories =
+        controller.categoryTotals;
+
+    return Container(
+      width: double.infinity,
+
+      padding:
+      const EdgeInsets.all(20),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+        BorderRadius.circular(20),
+      ),
+
+      child: Column(
+        children: [
+
+          // ==================================================
+          // YEAR + MONTH FILTER
+          // ==================================================
+
+          Row(
+            children: [
+
+              // ==================================================
+              // YEAR
+              // ==================================================
+
+              Expanded(
+                child:
+                DropdownButtonFormField<int?>(
+                  value:
+                  controller.selectedYear.value,
+
+                  decoration:
+                  const InputDecoration(
+                    labelText: 'Year',
+
+                    border:
+                    OutlineInputBorder(),
+
+                    contentPadding:
+                    EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
+
+                  items: [
+                    const DropdownMenuItem<
+                        int?>(
+                      value: null,
+                      child:
+                      Text('All Years'),
+                    ),
+
+                    ...controller
+                        .availableYears
+                        .map(
+                          (year) {
+                        return DropdownMenuItem<
+                            int?>(
+                          value: year,
+                          child: Text(
+                            year.toString(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+
+                  onChanged: (value) {
+                    controller
+                        .setPieYear(value);
+                  },
+                ),
+              ),
+
+              const SizedBox(width: 10),
+
+              // ==================================================
+              // MONTH
+              // ==================================================
+
+              Expanded(
+                child:
+                DropdownButtonFormField<int?>(
+                  value:
+                  controller.selectedMonth.value,
+
+                  decoration:
+                  const InputDecoration(
+                    labelText: 'Month',
+
+                    border:
+                    OutlineInputBorder(),
+
+                    contentPadding:
+                    EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
+
+                  items: [
+                    const DropdownMenuItem<
+                        int?>(
+                      value: null,
+                      child:
+                      Text('All Months'),
+                    ),
+
+                    ...List.generate(
+                      12,
+                          (index) {
+                        final month =
+                            index + 1;
+
+                        return DropdownMenuItem<
+                            int?>(
+                          value: month,
+
+                          child: Text(
+                            _monthName(
+                                month),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+
+                  onChanged: (value) {
+                    controller
+                        .setPieMonth(value);
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // ==================================================
+          // CLEAR PIE FILTER
+          // ==================================================
+
+          Align(
+            alignment:
+            Alignment.centerRight,
+
+            child: TextButton.icon(
+              onPressed:
+              controller.clearPieFilter,
+
+              icon: const Icon(
+                Icons.clear,
+                size: 16,
+              ),
+
+              label: const Text(
+                'Clear filters',
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // ==================================================
+          // PIE
+          // ==================================================
+
+          if (categories.isEmpty)
+            const SizedBox(
+              height: 220,
+
+              child: Center(
+                child: Text(
+                  'No expenses found.',
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            )
+          else
+            SizedBox(
+              height: 260,
+
+              child: Row(
+                children: [
+
+                  // ==================================================
+                  // PIE CHART
+                  // ==================================================
+
+                  Expanded(
+                    flex: 5,
+
+                    child: PieChart(
+                      PieChartData(
+                        centerSpaceRadius:
+                        45,
+
+                        sectionsSpace: 3,
+
+                        sections:
+                        _buildPieSections(
+                          categories,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(
+                      width: 30),
+
+                  // ==================================================
+                  // LEGEND
+                  // ==================================================
+
+                  Expanded(
+                    flex: 4,
+
+                    child:
+                    SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment:
+                        MainAxisAlignment
+                            .center,
+
+                        crossAxisAlignment:
+                        CrossAxisAlignment
+                            .start,
+
+                        children:
+                        _buildLegend(
+                          categories,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // PIE SECTIONS
+  // ============================================================
+
+  List<PieChartSectionData>
+  _buildPieSections(
+      Map<String, double> categories,
+      ) {
+    final total =
+    categories.values.fold(
+      0.0,
+          (sum, value) => sum + value,
+    );
+
+    final colors = [
+      Colors.blue,
+      Colors.orange,
+      Colors.green,
+      Colors.purple,
+      Colors.red,
+      Colors.teal,
+      Colors.pink,
+      Colors.amber,
+    ];
+
+    final entries =
+    categories.entries.toList();
+
+    return List.generate(
+      entries.length,
+          (index) {
+        final entry =
+        entries[index];
+
+        final percentage =
+        total == 0
+            ? 0
+            : (entry.value /
+            total) *
+            100;
+
+        return PieChartSectionData(
+          value: entry.value,
+
+          title:
+          '${percentage.toStringAsFixed(1)}%',
+
+          radius: 65,
+
+          color:
+          colors[index %
+              colors.length],
+
+          titleStyle:
+          const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight:
+            FontWeight.bold,
+          ),
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // LEGEND
+  // ============================================================
+
+  List<Widget> _buildLegend(
+      Map<String, double> categories,
+      ) {
+    final total =
+    categories.values.fold(
+      0.0,
+          (sum, value) => sum + value,
+    );
+
+    final colors = [
+      Colors.blue,
+      Colors.orange,
+      Colors.green,
+      Colors.purple,
+      Colors.red,
+      Colors.teal,
+      Colors.pink,
+      Colors.amber,
+    ];
+
+    final entries =
+    categories.entries.toList();
+
+    return List.generate(
+      entries.length,
+          (index) {
+        final entry =
+        entries[index];
+
+        final percentage =
+        total == 0
+            ? 0
+            : (entry.value /
+            total) *
+            100;
+
+        return Padding(
+          padding:
+          const EdgeInsets.only(
+            bottom: 14,
+          ),
+
+          child: _CategoryItem(
+            color:
+            colors[index %
+                colors.length],
+
+            title: entry.key,
+
+            percentage:
+            '${percentage.toStringAsFixed(1)}%',
+          ),
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // EMPTY CARD
+  // ============================================================
+
+  Widget _emptyCard(
+      String message,
+      ) {
+    return Container(
+      height: 180,
+      width: double.infinity,
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+        BorderRadius.circular(20),
+      ),
+
+      child: Center(
+        child: Column(
+          mainAxisAlignment:
+          MainAxisAlignment.center,
+
+          children: [
+
+            const Icon(
+              Icons.bar_chart,
+              size: 40,
+              color: Colors.grey,
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              message,
+
+              style:
+              const TextStyle(
+                color: Colors.grey,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // DATE FORMAT
+  // ============================================================
+
+  static String _formatDate(
+      DateTime date,
+      ) {
+    return '${date.day.toString().padLeft(2, '0')}/'
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year}';
+  }
+
+  // ============================================================
+  // MONTH NAME
+  // ============================================================
+
+  static String _monthName(
+      int month,
+      ) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
+    return months[month - 1];
+  }
 }
 
-// ======================================================
-// CATEGORY ITEM
-// ======================================================
+// ================================================================
+// CATEGORY LEGEND ITEM
+// ================================================================
 
-class _CategoryItem extends StatelessWidget {
+class _CategoryItem
+    extends StatelessWidget {
   final Color color;
   final String title;
   final String percentage;
@@ -441,13 +1218,18 @@ class _CategoryItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+      BuildContext context,
+      ) {
     return Row(
       children: [
+
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(
+
+          decoration:
+          BoxDecoration(
             color: color,
             shape: BoxShape.circle,
           ),
@@ -458,7 +1240,12 @@ class _CategoryItem extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
+
+            overflow:
+            TextOverflow.ellipsis,
+
+            style:
+            const TextStyle(
               fontSize: 13,
               color: Colors.black87,
             ),
@@ -467,9 +1254,12 @@ class _CategoryItem extends StatelessWidget {
 
         Text(
           percentage,
-          style: const TextStyle(
+
+          style:
+          const TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.bold,
+            fontWeight:
+            FontWeight.bold,
           ),
         ),
       ],

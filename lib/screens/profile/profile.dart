@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:moneygone/widgets/common/navigation.dart';
 
 import '../../app/routes/app_routes.dart';
+import '../../controllers/dashboard_controller.dart';
 import '../../controllers/profile_controller.dart';
 
 class Profile extends StatelessWidget {
@@ -11,7 +12,7 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ProfileController());
-
+    final dashboardController = Get.put(DashboardController());
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F9),
       appBar: AppBar(
@@ -127,6 +128,7 @@ class Profile extends StatelessWidget {
         onItemSelected: (index) {
           if (index == 0) {
             Get.offNamed(AppRoutes.dashBoard);
+            dashboardController.refreshDashboard();
           } else if (index == 1) {
             Get.offNamed(AppRoutes.expenses);
           }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../controllers/dashboard_controller.dart';
 import '../../controllers/expense_controller.dart';
 import '../../model/expense.dart';
 import '../../widgets/common/navigation.dart';
@@ -11,8 +12,8 @@ import '../../app/routes/app_routes.dart';
 class ExpensesScreen extends StatelessWidget {
   ExpensesScreen({super.key});
 
-  final ExpenseController controller =
-  Get.put(ExpenseController());
+  final ExpenseController controller = Get.put(ExpenseController());
+  final dashboardController = Get.put(DashboardController());
 
   final Color green = const Color(0xFF2E7D32);
 
@@ -201,6 +202,7 @@ class ExpensesScreen extends StatelessWidget {
             Get.offNamed(
               AppRoutes.dashBoard,
             );
+            dashboardController.refreshDashboard();
           } else if (index == 2) {
             Get.offNamed(
               AppRoutes.profile,
@@ -210,7 +212,6 @@ class ExpensesScreen extends StatelessWidget {
       ),
     );
   }
-
 
   // Month filter
   Widget _buildMonthFilter(
