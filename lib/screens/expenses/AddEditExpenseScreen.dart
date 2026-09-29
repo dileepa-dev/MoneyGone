@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/expense_controller.dart';
+import '../../controllers/theme_controller.dart';
 import '../../model/expense.dart';
 
 class AddEditExpenseScreen extends StatefulWidget {
@@ -69,6 +70,23 @@ class _AddEditExpenseScreenState
               ? 'Edit Expense'
               : 'Add Expense',
         ),
+
+        actions: [
+          Obx(
+                () {
+              final themeController = Get.find<ThemeController>();
+
+              return IconButton(
+                onPressed: themeController.toggleTheme,
+                icon: Icon(
+                  themeController.isDarkMode
+                      ? Icons.light_mode_outlined
+                      : Icons.dark_mode_outlined,
+                ),
+              );
+            },
+          ),
+        ],
       ),
 
       body: Form(

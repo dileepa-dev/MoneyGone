@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../app/routes/app_routes.dart';
 import '../../controllers/dashboard_controller.dart';
+import '../../controllers/theme_controller.dart';
 import '../../widgets/common/navigation.dart';
 
 class Dashboard extends StatelessWidget {
@@ -15,124 +16,128 @@ class Dashboard extends StatelessWidget {
     final controller = Get.put(DashboardController());
 
     return Scaffold(
-      backgroundColor:
-      const Color(0xFFF7F7F9),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
 
         title: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Dashboard 🚀',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               'Here\'s your spending summary ${controller.firstName} 📈',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: Colors.black54,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
         ),
+
+        actions: [
+          Obx(() {
+            final themeController = Get.find<ThemeController>();
+
+            return IconButton(
+              onPressed: themeController.toggleTheme,
+              icon: Icon(
+                themeController.isDarkMode
+                    ? Icons.light_mode_outlined
+                    : Icons.dark_mode_outlined,
+              ),
+            );
+          }),
+        ],
       ),
 
       // ========================================================
       // BODY
       // ========================================================
-
-      body: Obx(
-            () {
-          if (controller.isLoading.value) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: primaryColor,
-              ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: controller.refreshExpenses,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-
-              child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-                children: [
-
-                  // Date range filter
-                  _buildDateFilter(controller),
-
-                  const SizedBox(height: 20),
-
-                  // Total expenses
-                  _buildTotalCard(controller),
-
-                  const SizedBox(height: 24),
-
-                  // Daily expenses
-                  const Text(
-                    'Daily Expenses',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  _buildBarChart(controller),
-
-                  const SizedBox(height: 24),
-
-                  // Category pie chart
-                  const Text(
-                    'Category Breakdown',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  _buildPieChart(controller),
-
-                  const SizedBox(height: 30),
-                ],
-              ),
-            ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(color: primaryColor),
           );
-        },
-      ),
+        }
+
+        return RefreshIndicator(
+          onRefresh: controller.refreshExpenses,
+
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+
+            padding: const EdgeInsets.all(16),
+
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                // Date range filter
+                _buildDateFilter(context, controller),
+
+                const SizedBox(height: 20),
+
+                // Total expenses
+                _buildTotalCard(context, controller),
+
+                const SizedBox(height: 24),
+
+                // Daily expenses
+                Text(
+                  'Daily Expenses',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                _buildBarChart(context, controller),
+
+                const SizedBox(height: 24),
+
+                // Category pie chart
+                Text(
+                  'Category Breakdown',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                _buildPieChart(context, controller),
+
+                const SizedBox(height: 30),
+              ],
+            ),
+          ),
+        );
+      }),
 
       // Bottom navigation bar
-      bottomNavigationBar:
-      BottomNavBar(
+      bottomNavigationBar: BottomNavBar(
         currentIndex: 0,
 
         onItemSelected: (index) {
           if (index == 1) {
-            Get.offNamed(
-              AppRoutes.expenses,
-            );
+            Get.offNamed(AppRoutes.expenses);
           } else if (index == 2) {
-            Get.offNamed(
-              AppRoutes.profile,
-            );
+            Get.offNamed(AppRoutes.profile);
           }
         },
       ),
@@ -141,29 +146,27 @@ class Dashboard extends StatelessWidget {
 
   // Date filter code
   Widget _buildDateFilter(
+      BuildContext context,
       DashboardController controller,
       ) {
     return Container(
-      padding:
-      const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(18),
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(18),
       ),
 
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-
-          const Text(
+          Text(
             'Expense Date Range',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
 
@@ -174,88 +177,62 @@ class Dashboard extends StatelessWidget {
               // Date range button
               Expanded(
                 child: InkWell(
-                  borderRadius:
-                  BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12),
 
                   onTap: () async {
-                    final now =
-                    DateTime.now();
+                    final now = DateTime.now();
 
-                    final picked =
-                    await showDateRangePicker(
-                      context: Get.context!,
-                      firstDate:
-                      DateTime(2020),
-                      lastDate: DateTime(
-                        now.year + 1,
-                        12,
-                        31,
-                      ),
+                    final picked = await showDateRangePicker(
+                      context: context,
+
+                      firstDate: DateTime(2020),
+
+                      lastDate: DateTime(now.year + 1, 12, 31),
 
                       initialDateRange:
-                      controller.startDate
-                          .value !=
-                          null &&
-                          controller.endDate
-                              .value !=
-                              null
+                      controller.startDate.value != null &&
+                          controller.endDate.value != null
                           ? DateTimeRange(
-                        start: controller
-                            .startDate
-                            .value!,
-                        end: controller
-                            .endDate
-                            .value!,
+                        start: controller.startDate.value!,
+                        end: controller.endDate.value!,
                       )
                           : null,
                     );
 
                     if (picked != null) {
-                      controller.setDateRange(
-                        picked.start,
-                        picked.end,
-                      );
+                      controller.setDateRange(picked.start, picked.end);
                     }
                   },
 
                   child: Container(
-                    padding:
-                    const EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 13,
                     ),
 
-                    decoration:
-                    BoxDecoration(
-                      color:
-                      const Color(
-                          0xFFF7F7F9),
-                      borderRadius:
-                      BorderRadius.circular(
-                          12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
                     ),
 
                     child: Row(
                       children: [
-
                         const Icon(
                           Icons.calendar_month,
                           size: 20,
                           color: primaryColor,
                         ),
 
-                        const SizedBox(
-                            width: 8),
+                        const SizedBox(width: 8),
 
                         Expanded(
                           child: Text(
-                            _dateRangeText(
-                                controller),
-                            style:
-                            const TextStyle(
+                            _dateRangeText(controller),
+
+                            style: TextStyle(
                               fontSize: 12,
-                              fontWeight:
-                              FontWeight.w500,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -269,29 +246,25 @@ class Dashboard extends StatelessWidget {
 
               // Clear filters
               OutlinedButton(
-                onPressed:
-                controller.clearDateFilter,
+                onPressed: controller.clearDateFilter,
 
-                style:
-                OutlinedButton.styleFrom(
-                  padding:
-                  const EdgeInsets.symmetric(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 13,
                   ),
 
-                  shape:
-                  RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius.circular(
-                        12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
 
-                child: const Text(
+                child: Text(
                   'Clear',
-                  style:
-                  TextStyle(fontSize: 12),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             ],
@@ -302,13 +275,9 @@ class Dashboard extends StatelessWidget {
   }
 
   // Date range txt
-  String _dateRangeText(
-      DashboardController controller,
-      ) {
-    if (controller.startDate.value ==
-        null ||
-        controller.endDate.value ==
-            null) {
+  String _dateRangeText(DashboardController controller) {
+    if (controller.startDate.value == null ||
+        controller.endDate.value == null) {
       return 'All dates';
     }
 
@@ -319,32 +288,26 @@ class Dashboard extends StatelessWidget {
 
   // Total expenses code
   Widget _buildTotalCard(
+      BuildContext context,
       DashboardController controller,
       ) {
     return Container(
       width: double.infinity,
 
-      padding:
-      const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
         color: primaryColor,
-        borderRadius:
-        BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20),
       ),
 
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-
           const Text(
             'Total Expenses',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 14),
           ),
 
           const SizedBox(height: 8),
@@ -363,23 +326,14 @@ class Dashboard extends StatelessWidget {
 
           Row(
             children: [
-
-              const Icon(
-                Icons.calendar_month,
-                color: Colors.white70,
-                size: 16,
-              ),
+              const Icon(Icons.calendar_month, color: Colors.white70, size: 16),
 
               const SizedBox(width: 6),
 
               Text(
                 _dateRangeText(controller),
 
-                style:
-                const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
               ),
             ],
           ),
@@ -389,25 +343,17 @@ class Dashboard extends StatelessWidget {
   }
 
   // Bar chart
-  Widget _buildBarChart(
-      DashboardController controller,
-      ) {
-    final entries =
-        controller.sortedDailyExpenses;
+  Widget _buildBarChart(BuildContext context, DashboardController controller) {
+    final entries = controller.sortedDailyExpenses;
 
     if (entries.isEmpty) {
-      return _emptyCard(
-        'No expenses found for this date range.',
-      );
+      return _emptyCard(context, 'No expenses found for this date range.');
     }
 
     // Find highest expense.
-    final highestValue =
-    entries
+    final highestValue = entries
         .map((entry) => entry.value)
-        .reduce(
-          (a, b) => a > b ? a : b,
-    );
+        .reduce((a, b) => a > b ? a : b);
 
     // Give some extra space above the highest bar.
     final double maxY = highestValue <= 0
@@ -416,90 +362,68 @@ class Dashboard extends StatelessWidget {
 
     // Width based on number of dates
     // This is what makes the chart scrollable.
-    final chartWidth =
-        entries.length * 65.0;
+    final chartWidth = entries.length * 65.0;
+
+    final axisColor = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.55);
 
     return Container(
       height: 310,
 
-      padding:
-      const EdgeInsets.fromLTRB(
-        8,
-        20,
-        16,
-        12,
-      ),
+      padding: const EdgeInsets.fromLTRB(8, 20, 16, 12),
 
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(20),
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20),
       ),
 
       child: SingleChildScrollView(
-        scrollDirection:
-        Axis.horizontal,
+        scrollDirection: Axis.horizontal,
 
         child: SizedBox(
-          width:
-          chartWidth < 350
-              ? 350
-              : chartWidth,
+          width: chartWidth < 350 ? 350 : chartWidth,
 
           child: BarChart(
             BarChartData(
-
               minY: 0,
 
               maxY: maxY,
 
-              alignment:
-              BarChartAlignment.spaceAround,
+              alignment: BarChartAlignment.spaceAround,
 
-              borderData:
-              FlBorderData(
-                show: false,
-              ),
+              borderData: FlBorderData(show: false),
 
               // GRID
-              gridData:
-              FlGridData(
+              gridData: FlGridData(
                 show: true,
-                drawVerticalLine:
-                false,
+                drawVerticalLine: false,
 
-                horizontalInterval:
-                _calculateInterval(
-                    maxY),
+                horizontalInterval: _calculateInterval(maxY),
+
+                getDrawingHorizontalLine: (value) {
+                  return FlLine(
+                    color: axisColor.withValues(alpha: 0.18),
+                    strokeWidth: 1,
+                  );
+                },
               ),
 
               // TOUCH
-              barTouchData:
-              BarTouchData(
+              barTouchData: BarTouchData(
                 enabled: true,
 
-                touchTooltipData:
-                BarTouchTooltipData(
-                  getTooltipItem:
-                      (
-                      group,
-                      groupIndex,
-                      rod,
-                      rodIndex,
-                      ) {
-                    final entry =
-                    entries[
-                    group.x.toInt()];
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    final entry = entries[group.x.toInt()];
 
                     return BarTooltipItem(
                       '${_formatDate(entry.key)}\n'
                           'Rs. ${entry.value.toStringAsFixed(2)}',
 
                       const TextStyle(
-                        color:
-                        Colors.white,
-                        fontWeight:
-                        FontWeight.bold,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                         fontSize: 12,
                       ),
                     );
@@ -508,94 +432,57 @@ class Dashboard extends StatelessWidget {
               ),
 
               // AXIS TITLES
-              titlesData:
-              FlTitlesData(
-
+              titlesData: FlTitlesData(
                 // TOP
-                topTitles:
-                const AxisTitles(
-                  sideTitles:
-                  SideTitles(
-                    showTitles: false,
-                  ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
                 ),
 
                 // RIGHT
-                rightTitles:
-                const AxisTitles(
-                  sideTitles:
-                  SideTitles(
-                    showTitles: false,
-                  ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
                 ),
 
                 // Y AXIS
-                leftTitles:
-                AxisTitles(
-                  sideTitles:
-                  SideTitles(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
                     showTitles: true,
                     reservedSize: 48,
 
-                    interval:
-                    _calculateInterval(
-                        maxY),
+                    interval: _calculateInterval(maxY),
 
-                    getTitlesWidget:
-                        (value, meta) {
+                    getTitlesWidget: (value, meta) {
                       return Text(
-                        value.toInt()
-                            .toString(),
+                        value.toInt().toString(),
 
-                        style:
-                        const TextStyle(
-                          fontSize: 10,
-                          color:
-                          Colors.grey,
-                        ),
+                        style: TextStyle(fontSize: 10, color: axisColor),
                       );
                     },
                   ),
                 ),
 
                 // X AXIS
-                bottomTitles:
-                AxisTitles(
-                  sideTitles:
-                  SideTitles(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
                     showTitles: true,
                     reservedSize: 35,
 
-                    getTitlesWidget:
-                        (value, meta) {
-                      final index =
-                      value.toInt();
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
 
-                      if (index < 0 ||
-                          index >=
-                              entries.length) {
+                      if (index < 0 || index >= entries.length) {
                         return const SizedBox();
                       }
 
-                      final date =
-                          entries[index].key;
+                      final date = entries[index].key;
 
                       return Padding(
-                        padding:
-                        const EdgeInsets
-                            .only(
-                          top: 8,
-                        ),
+                        padding: const EdgeInsets.only(top: 8),
 
                         child: Text(
                           '${date.day}/${date.month}',
 
-                          style:
-                          const TextStyle(
-                            fontSize: 10,
-                            color:
-                            Colors.grey,
-                          ),
+                          style: TextStyle(fontSize: 10, color: axisColor),
                         ),
                       );
                     },
@@ -604,33 +491,24 @@ class Dashboard extends StatelessWidget {
               ),
 
               // BARS
-              barGroups:
-              List.generate(
-                entries.length,
-                    (index) {
-                  final entry =
-                  entries[index];
+              barGroups: List.generate(entries.length, (index) {
+                final entry = entries[index];
 
-                  return BarChartGroupData(
-                    x: index,
+                return BarChartGroupData(
+                  x: index,
 
-                    barRods: [
-                      BarChartRodData(
-                        toY: entry.value,
-                        width: 24,
+                  barRods: [
+                    BarChartRodData(
+                      toY: entry.value,
+                      width: 24,
 
-                        borderRadius:
-                        BorderRadius
-                            .circular(
-                            5),
+                      borderRadius: BorderRadius.circular(5),
 
-                        color:
-                        primaryColor,
-                      ),
-                    ],
-                  );
-                },
-              ),
+                      color: primaryColor,
+                    ),
+                  ],
+                );
+              }),
             ),
           ),
         ),
@@ -639,9 +517,7 @@ class Dashboard extends StatelessWidget {
   }
 
   // Y AXIS gaps
-  double _calculateInterval(
-      double maxY,
-      ) {
+  double _calculateInterval(double maxY) {
     if (maxY <= 1000) {
       return 200;
     }
@@ -662,22 +538,19 @@ class Dashboard extends StatelessWidget {
   }
 
   // PIE Chart
-  Widget _buildPieChart(
-      DashboardController controller,
-      ) {
-    final categories =
-        controller.categoryTotals;
+  Widget _buildPieChart(BuildContext context, DashboardController controller) {
+    final categories = controller.categoryTotals;
+
+    final textColor = Theme.of(context).colorScheme.onSurface;
 
     return Container(
       width: double.infinity,
 
-      padding:
-      const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(20),
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20),
       ),
 
       child: Column(
@@ -687,51 +560,44 @@ class Dashboard extends StatelessWidget {
             children: [
               // YEAR
               Expanded(
-                child:
-                DropdownButtonFormField<int?>(
-                  value:
-                  controller.selectedYear.value,
+                child: DropdownButtonFormField<int?>(
+                  value: controller.selectedYear.value,
 
-                  decoration:
-                  const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Year',
 
-                    border:
-                    OutlineInputBorder(),
+                    labelStyle: TextStyle(color: textColor),
 
-                    contentPadding:
-                    EdgeInsets.symmetric(
+                    border: const OutlineInputBorder(),
+
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 10,
                     ),
                   ),
 
                   items: [
-                    const DropdownMenuItem<
-                        int?>(
+                    DropdownMenuItem<int?>(
                       value: null,
-                      child:
-                      Text('All Years'),
+                      child: Text(
+                        'All Years',
+                        style: TextStyle(color: textColor),
+                      ),
                     ),
 
-                    ...controller
-                        .availableYears
-                        .map(
-                          (year) {
-                        return DropdownMenuItem<
-                            int?>(
-                          value: year,
-                          child: Text(
-                            year.toString(),
-                          ),
-                        );
-                      },
-                    ),
+                    ...controller.availableYears.map((year) {
+                      return DropdownMenuItem<int?>(
+                        value: year,
+                        child: Text(
+                          year.toString(),
+                          style: TextStyle(color: textColor),
+                        ),
+                      );
+                    }),
                   ],
 
                   onChanged: (value) {
-                    controller
-                        .setPieYear(value);
+                    controller.setPieYear(value);
                   },
                 ),
               ),
@@ -740,55 +606,48 @@ class Dashboard extends StatelessWidget {
 
               // MONTH
               Expanded(
-                child:
-                DropdownButtonFormField<int?>(
-                  value:
-                  controller.selectedMonth.value,
+                child: DropdownButtonFormField<int?>(
+                  value: controller.selectedMonth.value,
 
-                  decoration:
-                  const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Month',
 
-                    border:
-                    OutlineInputBorder(),
+                    labelStyle: TextStyle(color: textColor),
 
-                    contentPadding:
-                    EdgeInsets.symmetric(
+                    border: const OutlineInputBorder(),
+
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 10,
                     ),
                   ),
 
                   items: [
-                    const DropdownMenuItem<
-                        int?>(
+                    DropdownMenuItem<int?>(
                       value: null,
-                      child:
-                      Text('All Months'),
+                      child: Text(
+                        'All Months',
+                        style: TextStyle(color: textColor),
+                      ),
                     ),
 
-                    ...List.generate(
-                      12,
-                          (index) {
-                        final month =
-                            index + 1;
+                    ...List.generate(12, (index) {
+                      final month = index + 1;
 
-                        return DropdownMenuItem<
-                            int?>(
-                          value: month,
+                      return DropdownMenuItem<int?>(
+                        value: month,
 
-                          child: Text(
-                            _monthName(
-                                month),
-                          ),
-                        );
-                      },
-                    ),
+                        child: Text(
+                          _monthName(month),
+
+                          style: TextStyle(color: textColor),
+                        ),
+                      );
+                    }),
                   ],
 
                   onChanged: (value) {
-                    controller
-                        .setPieMonth(value);
+                    controller.setPieMonth(value);
                   },
                 ),
               ),
@@ -799,21 +658,14 @@ class Dashboard extends StatelessWidget {
 
           // Clear pie chart filter
           Align(
-            alignment:
-            Alignment.centerRight,
+            alignment: Alignment.centerRight,
 
             child: TextButton.icon(
-              onPressed:
-              controller.clearPieFilter,
+              onPressed: controller.clearPieFilter,
 
-              icon: const Icon(
-                Icons.clear,
-                size: 16,
-              ),
+              icon: const Icon(Icons.clear, size: 16),
 
-              label: const Text(
-                'Clear filters',
-              ),
+              label: const Text('Clear filters'),
             ),
           ),
 
@@ -821,15 +673,13 @@ class Dashboard extends StatelessWidget {
 
           // PIE
           if (categories.isEmpty)
-            const SizedBox(
+            SizedBox(
               height: 220,
 
               child: Center(
                 child: Text(
                   'No expenses found.',
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(color: textColor.withValues(alpha: 0.6)),
                 ),
               ),
             )
@@ -839,48 +689,34 @@ class Dashboard extends StatelessWidget {
 
               child: Row(
                 children: [
-
                   // PIE CHART
                   Expanded(
                     flex: 5,
 
                     child: PieChart(
                       PieChartData(
-                        centerSpaceRadius:
-                        45,
+                        centerSpaceRadius: 45,
 
                         sectionsSpace: 3,
 
-                        sections:
-                        _buildPieSections(
-                          categories,
-                        ),
+                        sections: _buildPieSections(categories),
                       ),
                     ),
                   ),
 
-                  const SizedBox(
-                      width: 30),
+                  const SizedBox(width: 30),
 
                   // LEGEND
                   Expanded(
                     flex: 4,
 
-                    child:
-                    SingleChildScrollView(
+                    child: SingleChildScrollView(
                       child: Column(
-                        mainAxisAlignment:
-                        MainAxisAlignment
-                            .center,
+                        mainAxisAlignment: MainAxisAlignment.center,
 
-                        crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
-                        children:
-                        _buildLegend(
-                          categories,
-                        ),
+                        children: _buildLegend(context, categories),
                       ),
                     ),
                   ),
@@ -893,15 +729,8 @@ class Dashboard extends StatelessWidget {
   }
 
   // PIE chart sections
-  List<PieChartSectionData>
-  _buildPieSections(
-      Map<String, double> categories,
-      ) {
-    final total =
-    categories.values.fold(
-      0.0,
-          (sum, value) => sum + value,
-    );
+  List<PieChartSectionData> _buildPieSections(Map<String, double> categories) {
+    final total = categories.values.fold(0.0, (sum, value) => sum + value);
 
     final colors = [
       Colors.blue,
@@ -914,55 +743,37 @@ class Dashboard extends StatelessWidget {
       Colors.amber,
     ];
 
-    final entries =
-    categories.entries.toList();
+    final entries = categories.entries.toList();
 
-    return List.generate(
-      entries.length,
-          (index) {
-        final entry =
-        entries[index];
+    return List.generate(entries.length, (index) {
+      final entry = entries[index];
 
-        final percentage =
-        total == 0
-            ? 0
-            : (entry.value /
-            total) *
-            100;
+      final percentage = total == 0 ? 0 : (entry.value / total) * 100;
 
-        return PieChartSectionData(
-          value: entry.value,
+      return PieChartSectionData(
+        value: entry.value,
 
-          title:
-          '${percentage.toStringAsFixed(1)}%',
+        title: '${percentage.toStringAsFixed(1)}%',
 
-          radius: 65,
+        radius: 65,
 
-          color:
-          colors[index %
-              colors.length],
+        color: colors[index % colors.length],
 
-          titleStyle:
-          const TextStyle(
-            color: Colors.white,
-            fontSize: 11,
-            fontWeight:
-            FontWeight.bold,
-          ),
-        );
-      },
-    );
+        titleStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    });
   }
 
   // LEGEND section
   List<Widget> _buildLegend(
+      BuildContext context,
       Map<String, double> categories,
       ) {
-    final total =
-    categories.values.fold(
-      0.0,
-          (sum, value) => sum + value,
-    );
+    final total = categories.values.fold(0.0, (sum, value) => sum + value);
 
     final colors = [
       Colors.blue,
@@ -975,78 +786,54 @@ class Dashboard extends StatelessWidget {
       Colors.amber,
     ];
 
-    final entries =
-    categories.entries.toList();
+    final entries = categories.entries.toList();
 
-    return List.generate(
-      entries.length,
-          (index) {
-        final entry =
-        entries[index];
+    return List.generate(entries.length, (index) {
+      final entry = entries[index];
 
-        final percentage =
-        total == 0
-            ? 0
-            : (entry.value /
-            total) *
-            100;
+      final percentage = total == 0 ? 0 : (entry.value / total) * 100;
 
-        return Padding(
-          padding:
-          const EdgeInsets.only(
-            bottom: 14,
-          ),
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 14),
 
-          child: _CategoryItem(
-            color:
-            colors[index %
-                colors.length],
+        child: _CategoryItem(
+          color: colors[index % colors.length],
 
-            title: entry.key,
+          title: entry.key,
 
-            percentage:
-            '${percentage.toStringAsFixed(1)}%',
-          ),
-        );
-      },
-    );
+          percentage: '${percentage.toStringAsFixed(1)}%',
+        ),
+      );
+    });
   }
 
   // EMPTY chart card
-  Widget _emptyCard(
-      String message,
-      ) {
+  Widget _emptyCard(BuildContext context, String message) {
     return Container(
       height: 180,
       width: double.infinity,
 
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-        BorderRadius.circular(20),
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20),
       ),
 
       child: Center(
         child: Column(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
-
-            const Icon(
-              Icons.bar_chart,
-              size: 40,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.bar_chart, size: 40, color: Colors.grey),
 
             const SizedBox(height: 10),
 
             Text(
               message,
 
-              style:
-              const TextStyle(
-                color: Colors.grey,
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
                 fontSize: 13,
               ),
             ),
@@ -1057,18 +844,14 @@ class Dashboard extends StatelessWidget {
   }
 
   // Date format
-  static String _formatDate(
-      DateTime date,
-      ) {
+  static String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/'
         '${date.month.toString().padLeft(2, '0')}/'
         '${date.year}';
   }
 
   // Month name
-  static String _monthName(
-      int month,
-      ) {
+  static String _monthName(int month) {
     const months = [
       'January',
       'February',
@@ -1089,8 +872,7 @@ class Dashboard extends StatelessWidget {
 }
 
 // Category item
-class _CategoryItem
-    extends StatelessWidget {
+class _CategoryItem extends StatelessWidget {
   final Color color;
   final String title;
   final String percentage;
@@ -1102,21 +884,14 @@ class _CategoryItem
   });
 
   @override
-  Widget build(
-      BuildContext context,
-      ) {
+  Widget build(BuildContext context) {
     return Row(
       children: [
-
         Container(
           width: 12,
           height: 12,
 
-          decoration:
-          BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
 
         const SizedBox(width: 8),
@@ -1125,13 +900,11 @@ class _CategoryItem
           child: Text(
             title,
 
-            overflow:
-            TextOverflow.ellipsis,
+            overflow: TextOverflow.ellipsis,
 
-            style:
-            const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -1139,11 +912,10 @@ class _CategoryItem
         Text(
           percentage,
 
-          style:
-          const TextStyle(
+          style: TextStyle(
             fontSize: 13,
-            fontWeight:
-            FontWeight.bold,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],

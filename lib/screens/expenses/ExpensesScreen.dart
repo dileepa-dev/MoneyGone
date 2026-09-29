@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../controllers/dashboard_controller.dart';
 import '../../controllers/expense_controller.dart';
+import '../../controllers/theme_controller.dart';
 import '../../model/expense.dart';
 import '../../widgets/common/navigation.dart';
 import 'AddEditExpenseScreen.dart';
@@ -38,6 +39,23 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           'Expenses',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+
+        actions: [
+          Obx(
+                () {
+              final themeController = Get.find<ThemeController>();
+
+              return IconButton(
+                onPressed: themeController.toggleTheme,
+                icon: Icon(
+                  themeController.isDarkMode
+                      ? Icons.light_mode_outlined
+                      : Icons.dark_mode_outlined,
+                ),
+              );
+            },
+          ),
+        ],
       ),
 
       body: Obx(() {

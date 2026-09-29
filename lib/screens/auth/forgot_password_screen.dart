@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../app/theme/app_theme.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/theme_controller.dart';
 import '../../widgets/auth/auth_button.dart';
 import '../../widgets/auth/auth_text_field.dart';
 
@@ -19,6 +20,22 @@ class ForgotPasswordScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         // automaticallyImplyLeading: false,
+        actions: [
+          Obx(
+                () {
+              final themeController = Get.find<ThemeController>();
+
+              return IconButton(
+                onPressed: themeController.toggleTheme,
+                icon: Icon(
+                  themeController.isDarkMode
+                      ? Icons.light_mode_outlined
+                      : Icons.dark_mode_outlined,
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -50,9 +67,9 @@ class ForgotPasswordScreen extends StatelessWidget {
 
                     RichText(
                       textAlign: TextAlign.center,
-                      text: const TextSpan(
+                      text: TextSpan(
                         children: [
-                          TextSpan(
+                          const TextSpan(
                             text: 'Forgot ',
                             style: TextStyle(
                               color:
@@ -64,7 +81,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                           TextSpan(
                             text: 'Password?',
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 22,
                               fontWeight: FontWeight.w600,
                             ),

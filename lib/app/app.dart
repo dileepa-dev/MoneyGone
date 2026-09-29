@@ -16,6 +16,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
 
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.light,
 
       // Check Firebase login state when the app starts.
       home: const AuthCheckScreen(),
