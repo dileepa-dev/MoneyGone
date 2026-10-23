@@ -1,4 +1,4 @@
-# 💰 MoneyGone
+# 💰 MoneyGone 
 
 A clean and user-friendly **Flutter Expense Tracker** application built with **Firebase**.
 
